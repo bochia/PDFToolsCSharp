@@ -2,13 +2,13 @@
 {
     using PDFTools.Models;
 
-    internal interface ISplitRangeValidator
+    public interface ISplitRangeParser
     {
         /// <summary>
-        /// Validates that passed string represents a valid set of ranges.
+        /// Tries to parse ranges from strings.
         /// </summary>
         /// <param name="ranges"></param>
         /// <returns></returns>
-        ServiceResponse ValidateSplitRanges(string ranges);
+        ServiceResponse<IEnumerable<SplitRange>> ParseRangesFromString(string ranges);
     }
 }

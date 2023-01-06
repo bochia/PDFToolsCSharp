@@ -1,6 +1,6 @@
 ﻿namespace PDFTools.Enums
 {
-    public enum ModifyActions
+    public enum PdfModifyActions
     {
         SplitRange,
         SplitInterval,
