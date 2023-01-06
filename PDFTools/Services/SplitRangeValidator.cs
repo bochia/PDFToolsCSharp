@@ -5,6 +5,7 @@
 
     public class SplitRangeValidator : ISplitRangeValidator
     {
+        /// <inheritdoc />
         public ServiceResponse ValidateSplitRanges(string ranges)
         {
             throw new NotImplementedException();
