@@ -16,19 +16,27 @@
         }
 
         /// <inheritdoc />
-        public ServiceResponse<string> SplitByInterval(string inputPdfPath, int interval)
+        public ServiceResponse<string> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public ServiceResponse<string> SplitByRanges(string inputPdfPath, string ranges)
+        public ServiceResponse<string> SplitByRanges(string inputPdfPath, string outputFolderPath, string ranges)
         {
             if (string.IsNullOrWhiteSpace(inputPdfPath))
             {
                 return new ServiceResponse<string>()
                 {
                     ErrorMessage = $"{nameof(inputPdfPath)} cannot be null or whitespace."
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(outputFolderPath))
+            {
+                return new ServiceResponse<string>()
+                {
+                    ErrorMessage = $"{nameof(outputFolderPath)} cannot be null or whitespace."
                 };
             }
 
@@ -72,12 +80,12 @@
                 };
             }
 
-            return SplitByRanges(inputPdf, parseRangesResponse.Data);
+            return SplitByRanges(inputPdf, outputFolderPath, parseRangesResponse.Data);
 
         }
 
 
-        private ServiceResponse<string> SplitByRanges(PdfDocument inputPdf, IEnumerable<SplitRange> ranges)
+        private ServiceResponse<string> SplitByRanges(PdfDocument inputPdf, string outputFolderPath, IEnumerable<SplitRange> ranges)
         {
             if (inputPdf == null)
             {
@@ -111,7 +119,7 @@
                         outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
                     }
 
-                    outputPdf.Save(@$"C:\Users\John\Downloads\{outputPdf.Info.Title}.pdf"); //TODO: need to change this path.
+                    outputPdf.Save(@$"{outputFolderPath}{outputPdf.Info.Title}.pdf"); //TODO: need to change this path.
                 }
             }
             catch (Exception ex)

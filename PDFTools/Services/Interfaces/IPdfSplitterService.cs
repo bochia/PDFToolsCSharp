@@ -10,7 +10,7 @@
         /// <param name="inputPdfPath"></param>
         /// <param name="interval"></param>
         /// <returns></returns>
-        ServiceResponse<string> SplitByInterval(string inputPdfPath, int interval);
+        ServiceResponse<string> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath);
 
         /// <summary>
         /// Returns path to zip file where resulting PDFs from split are stored.
@@ -18,6 +18,6 @@
         /// <param name="inputPdfPath"></param>
         /// <param name="ranges"></param>
         /// <returns></returns>
-        ServiceResponse<string> SplitByRanges(string inputPdfPath, string ranges);
+        ServiceResponse<string> SplitByRanges(string inputPdfPath, string outputFolderPathstring, string ranges);
     }
 }
