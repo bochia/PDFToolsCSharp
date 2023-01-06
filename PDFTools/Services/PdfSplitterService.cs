@@ -18,7 +18,48 @@
         /// <inheritdoc />
         public ServiceResponse<string> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(inputPdfPath))
+            {
+                return new ServiceResponse<string>()
+                {
+                    ErrorMessage = $"{nameof(inputPdfPath)} cannot be null or whitespace."
+                };
+            }
+
+            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfPath);
+            if (!pdfResponse.Success || pdfResponse.Data == null)
+            {
+                return new ServiceResponse<string>()
+                {
+                    ErrorMessage = pdfResponse.ErrorMessage
+                };
+            }
+
+            IEnumerable<SplitRange> ranges = GenerateRangesFromInterval(interval, pdfResponse.Data.PageCount);
+
+            return SplitByRanges(pdfResponse.Data, outputFolderPath, ranges);
+        }
+
+        private IEnumerable<SplitRange> GenerateRangesFromInterval(int interval, int pdfPageCount)
+        {
+            // create ranges
+            List<SplitRange> ranges = new List<SplitRange>();
+
+            int startPageNumber = 1;
+            int endPageNumber = interval;
+            while (endPageNumber < pdfPageCount)
+            {
+                ranges.Add(new SplitRange(startPageNumber, endPageNumber));
+                startPageNumber = endPageNumber + 1;
+                endPageNumber = startPageNumber + interval - 1;
+            }
+
+            if (startPageNumber < pdfPageCount && endPageNumber > pdfPageCount)
+            {
+                ranges.Add(new SplitRange(startPageNumber, pdfPageCount));
+            }
+
+            return ranges;
         }
 
         /// <inheritdoc />
@@ -48,25 +89,12 @@
                 };
             }
 
-            PdfDocument inputPdf;
-            try
+            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfPath);
+            if (!pdfResponse.Success || pdfResponse.Data == null)
             {
-                inputPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import); //TODO: how do we stop this from memory leaking?
-
-                if (inputPdf == null)
-                {
-                    return new ServiceResponse<string>()
-                    {
-                        ErrorMessage = "Opened PDF was null."
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                //TODO: Add logging that includes pdf path here.
                 return new ServiceResponse<string>()
                 {
-                    ErrorMessage = $"Failed to open PDF - {ex.Message}"
+                    ErrorMessage = pdfResponse.ErrorMessage
                 };
             }
 
@@ -80,10 +108,9 @@
                 };
             }
 
-            return SplitByRanges(inputPdf, outputFolderPath, parseRangesResponse.Data);
+            return SplitByRanges(pdfResponse.Data, outputFolderPath, parseRangesResponse.Data);
 
         }
-
 
         private ServiceResponse<string> SplitByRanges(PdfDocument inputPdf, string outputFolderPath, IEnumerable<SplitRange> ranges)
         {
@@ -149,6 +176,37 @@
             }
 
             return $"{outputPdfName}_to_{range.EndPageNumber}";
+        }
+
+        private ServiceResponse<PdfDocument> OpenPdf(string inputPdfPath)
+        {
+
+            try
+            {
+                PdfDocument inputPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import); //TODO: how do we stop this from memory leaking?
+
+                if (inputPdf == null)
+                {
+                    return new ServiceResponse<PdfDocument>()
+                    {
+                        ErrorMessage = "Opened PDF was null."
+                    };
+                }
+
+                return new ServiceResponse<PdfDocument>()
+                {
+                    Success = true,
+                    Data = inputPdf
+                };
+            }
+            catch (Exception ex)
+            {
+                //TODO: Add logging that includes pdf path here.
+                return new ServiceResponse<PdfDocument>()
+                {
+                    ErrorMessage = $"Failed to open PDF - {ex.Message}"
+                };
+            }
         }
 
         private string ZipOutputPdfsTogether()
