@@ -25,7 +25,7 @@
             {
                 return new ServiceResponse<string>()
                 {
-                    ErrorMessage = $"{nameof(outputFolderPath)} cannot be null or empty."
+                    ErrorMessage = $"{nameof(outputFolderPath)} cannot be null or whitespace."
                 };
             }
 
