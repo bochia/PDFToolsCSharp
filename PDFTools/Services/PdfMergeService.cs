@@ -82,13 +82,13 @@
                         }
                     }
 
-                    string outputFilePath = $"{outputFolderPath}{outputPdf.Info.Title}{PdfFileExtension}";
-                    outputPdf.Save(outputFilePath);
+                    string outputPdfPath = $"{outputFolderPath}{outputPdf.Info.Title}{PdfFileExtension}";
+                    outputPdf.Save(outputPdfPath);
 
                     return new ServiceResponse<string>()
                     {
                         Success = true,
-                        Data = outputFilePath,
+                        Data = outputPdfPath,
                     };
                 }
             }
