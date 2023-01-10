@@ -11,5 +11,13 @@
         /// Returns path to resulting PDF.
         /// </returns>
         ServiceResponse<string> MergePdfs(IEnumerable<string> inputPdfPaths, string outputFolderPath);
+
+        /// <summary>
+        /// Merges PDFs in order they were passed, merged in memory.
+        /// </summary>
+        /// <returns>
+        /// Returns Steam of PDF.
+        /// </returns>
+        ServiceResponse<Stream> MergePdfsInMemory(IEnumerable<Stream> inputPdfStreams);
     }
 }
