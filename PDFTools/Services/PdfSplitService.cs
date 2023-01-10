@@ -6,11 +6,11 @@
     using PDFTools.Services.Interfaces;
     using System.Collections.Generic;
 
-    public class PdfSplitterService : IPdfSplitterService
+    public class PdfSplitService : IPdfSplitService
     {
         private readonly ISplitRangeParser splitRangeParser;
 
-        public PdfSplitterService(ISplitRangeParser splitRangeParser)
+        public PdfSplitService(ISplitRangeParser splitRangeParser)
         {
             this.splitRangeParser = splitRangeParser;
         }

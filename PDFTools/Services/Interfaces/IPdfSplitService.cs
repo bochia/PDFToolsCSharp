@@ -2,7 +2,7 @@
 {
     using PDFTools.Models;
 
-    public interface IPdfSplitterService
+    public interface IPdfSplitService
     {
         /// <summary>
         /// Returns path to zip file where resulting PDFs from split are stored.
