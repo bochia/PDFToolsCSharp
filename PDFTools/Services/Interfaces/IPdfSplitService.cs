@@ -5,7 +5,7 @@
     public interface IPdfSplitService
     {
         /// <summary>
-        /// Splits PDF according to provided interval.
+        /// Splits PDF according to provided interval using file storage.
         /// </summary>
         /// <param name="inputPdfPath"></param>
         /// <param name="interval"></param>
@@ -15,7 +15,7 @@
         ServiceResponse<IEnumerable<string>> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath);
 
         /// <summary>
-        /// Splits PDF according to provided ranges.
+        /// Splits PDF according to provided ranges using file storage.
         /// </summary>
         /// <param name="inputPdfPath"></param>
         /// <param name="ranges"></param>

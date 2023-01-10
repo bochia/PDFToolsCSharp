@@ -5,7 +5,7 @@
     public interface IPdfMergeService
     {
         /// <summary>
-        /// Merges PDFs in order they were passed. 
+        /// Merges PDFs in order they were passed using file storage.
         /// </summary>
         /// <returns>
         /// Returns path to resulting PDF.
