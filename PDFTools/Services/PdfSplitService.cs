@@ -8,6 +8,7 @@
 
     public class PdfSplitService : IPdfSplitService
     {
+        private const string PdfFileExtension = ".pdf";
         private readonly ISplitRangeParser splitRangeParser;
 
         public PdfSplitService(ISplitRangeParser splitRangeParser)
@@ -16,11 +17,11 @@
         }
 
         /// <inheritdoc />
-        public ServiceResponse<string> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath)
+        public ServiceResponse<IEnumerable<string>> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath)
         {
             if (string.IsNullOrWhiteSpace(inputPdfPath))
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(inputPdfPath)} cannot be null or whitespace."
                 };
@@ -29,7 +30,7 @@
             ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfPath);
             if (!pdfResponse.Success || pdfResponse.Data == null)
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = pdfResponse.ErrorMessage
                 };
@@ -63,11 +64,11 @@
         }
 
         /// <inheritdoc />
-        public ServiceResponse<string> SplitByRanges(string inputPdfPath, string outputFolderPath, string ranges)
+        public ServiceResponse<IEnumerable<string>> SplitByRanges(string inputPdfPath, string outputFolderPath, string ranges)
         {
             if (string.IsNullOrWhiteSpace(inputPdfPath))
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(inputPdfPath)} cannot be null or whitespace."
                 };
@@ -75,15 +76,23 @@
 
             if (string.IsNullOrWhiteSpace(outputFolderPath))
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(outputFolderPath)} cannot be null or whitespace."
                 };
             }
 
+            if (!Directory.Exists(outputFolderPath))
+            {
+                return new ServiceResponse<IEnumerable<string>>()
+                {
+                    ErrorMessage = $"Directory doesn't exist at specified location: {outputFolderPath}."
+                };
+            }
+
             if (string.IsNullOrWhiteSpace(ranges))
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(ranges)} cannt be null or whitespace."
                 };
@@ -92,7 +101,7 @@
             ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfPath);
             if (!pdfResponse.Success || pdfResponse.Data == null)
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = pdfResponse.ErrorMessage
                 };
@@ -102,7 +111,7 @@
 
             if (!parseRangesResponse.Success || parseRangesResponse.Data == null)
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = parseRangesResponse.ErrorMessage
                 };
@@ -112,11 +121,11 @@
 
         }
 
-        private ServiceResponse<string> SplitByRanges(PdfDocument inputPdf, string outputFolderPath, IEnumerable<SplitRange> ranges)
+        private ServiceResponse<IEnumerable<string>> SplitByRanges(PdfDocument inputPdf, string outputFolderPath, IEnumerable<SplitRange> ranges)
         {
             if (inputPdf == null)
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(inputPdf)} cannot be null."
                 };
@@ -124,11 +133,13 @@
 
             if (ranges == null || !ranges.Any())
             {
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(ranges)} cannot be null or empty."
                 };
             }
+
+            List<string> outputPdfPaths = new List<string>();
 
             try
             {
@@ -146,23 +157,26 @@
                         outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
                     }
 
-                    outputPdf.Save(@$"{outputFolderPath}{outputPdf.Info.Title}.pdf"); //TODO: need to change this path.
+                    string outputPdfPath = $"{outputFolderPath}{outputPdf.Info.Title}{PdfFileExtension}";
+                    outputPdf.Save(outputPdfPath);
+
+                    outputPdfPaths.Add(outputPdfPath);
                 }
             }
             catch (Exception ex)
             {
 
-                return new ServiceResponse<string>()
+                return new ServiceResponse<IEnumerable<string>>()
                 {
                     ErrorMessage = $"Failed to split PDF - {ex.Message}"
                 };
             }
 
 
-            return new ServiceResponse<string>()
+            return new ServiceResponse<IEnumerable<string>>()
             {
                 Success = true,
-                Data = "ochia"
+                Data = outputPdfPaths
             };
         }
 

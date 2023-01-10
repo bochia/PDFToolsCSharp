@@ -5,19 +5,23 @@
     public interface IPdfSplitService
     {
         /// <summary>
-        /// Returns path to zip file where resulting PDFs from split are stored.
+        /// Splits PDF according to provided interval.
         /// </summary>
         /// <param name="inputPdfPath"></param>
         /// <param name="interval"></param>
-        /// <returns></returns>
-        ServiceResponse<string> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath);
+        /// <returns>
+        /// Returns paths to output PDFs.
+        /// </returns>
+        ServiceResponse<IEnumerable<string>> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath);
 
         /// <summary>
-        /// Returns path to zip file where resulting PDFs from split are stored.
+        /// Splits PDF according to provided ranges.
         /// </summary>
         /// <param name="inputPdfPath"></param>
         /// <param name="ranges"></param>
-        /// <returns></returns>
-        ServiceResponse<string> SplitByRanges(string inputPdfPath, string outputFolderPathstring, string ranges);
+        /// <returns>
+        /// Returns paths to output PDFs.
+        /// </returns>
+        ServiceResponse<IEnumerable<string>> SplitByRanges(string inputPdfPath, string outputFolderPathstring, string ranges);
     }
 }

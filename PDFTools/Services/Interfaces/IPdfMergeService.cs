@@ -2,12 +2,14 @@
 {
     using PDFTools.Models;
 
-    internal interface IPdfMergeService
+    public interface IPdfMergeService
     {
         /// <summary>
         /// Merges PDFs in order they were passed. 
         /// </summary>
-        /// <returns></returns>
-        ServiceResponse<string> MergePdfs(IEnumerable<string> inputPdfPaths);
+        /// <returns>
+        /// Returns path to resulting PDF.
+        /// </returns>
+        ServiceResponse<string> MergePdfs(IEnumerable<string> inputPdfPaths, string outputFolderPath);
     }
 }
