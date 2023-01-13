@@ -41,6 +41,12 @@
             return SplitByRanges(pdfResponse.Data, outputFolderPath, ranges);
         }
 
+        /// <inheritdoc />
+        public ServiceResponse<IEnumerable<Stream>> SplitByIntervalInMemory(Stream inputPdfStream, int interval)
+        {
+            throw new NotImplementedException();
+        }
+
         private IEnumerable<SplitRange> GenerateRangesFromInterval(int interval, int pdfPageCount)
         {
             // create ranges
@@ -178,6 +184,12 @@
                 Success = true,
                 Data = outputPdfPaths
             };
+        }
+
+        /// <inheritdoc />
+        public ServiceResponse<IEnumerable<Stream>> SplitByRangesInMemory(Stream inputPdfStream, string ranges)
+        {
+            throw new NotImplementedException();
         }
 
         private string CreateOutputPdfName(string inputPdfName, SplitRange range)
