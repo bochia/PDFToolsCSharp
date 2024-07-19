@@ -83,7 +83,7 @@
                         }
                     }
 
-                    string outputPdfPath = $"{outputFolderPath}{ResultFileName}";
+                    string outputPdfPath = $"{outputFolderPath}{ResultFileName}.pdf";
                     outputPdf.Save(outputPdfPath);
 
                     return new ServiceResponse<string>()
