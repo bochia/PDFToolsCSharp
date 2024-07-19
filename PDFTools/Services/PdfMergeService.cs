@@ -9,7 +9,7 @@
     public class PdfMergeService : IPdfMergeService
     {
         private const string PdfFileExtension = ".pdf";
-        private const string ResultFileName = "Merge_Result";
+        private const string ResultFileName = "Merge_Result"; //TODO: Make merge result add the datetime to the name.
 
         /// <inheritdoc />
         public ServiceResponse<string> MergePdfs(IEnumerable<string> inputPdfPaths, string outputFolderPath)
