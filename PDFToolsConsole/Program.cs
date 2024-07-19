@@ -4,6 +4,10 @@ using PDFTools.Services;
 using PDFTools.Services.Interfaces;
 using System.Diagnostics;
 
+//TODO: Create a PDF macro editor that can do stuff like SplitThenMerge etc..
+//TODO: Need to make sure all of my guard clauses are good.
+//TODO: Add unit tests using xUnit and NSubstitute.
+
 string inputPdfPath = @"C:\source\repos\PDFToolsCSharp\PDFFiles\TestPdf_Max20Pages.pdf";
 string outputFolderPath = @"C:\source\repos\PDFToolsCSharp\PDFFiles\OutputFiles\";
 
@@ -38,8 +42,6 @@ if (splitResponse1.Data != null)
 
 // open up file explorer so you can look at the results.
 Process.Start("explorer.exe", outputFolderPath);
-
-//TODO: Create a PDF macro editor that can do stuff like SplitThenMerge etc..
 
 
 static void DeleteAllOutputFiles(string outputFolderPath)
