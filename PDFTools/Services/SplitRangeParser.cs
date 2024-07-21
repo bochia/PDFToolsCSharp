@@ -10,6 +10,50 @@
         private const char Hyphen = '-';
 
         /// <inheritdoc />
+        public ServiceResponse<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount)
+        {
+            if (interval <= 0)
+            {
+                return new ServiceResponse<IEnumerable<SplitRange>>()
+                {
+                    ErrorMessage = $"{nameof(interval)} must be greater than 0."
+                };
+            }
+
+            if (pdfPageCount <= 0)
+            {
+                return new ServiceResponse<IEnumerable<SplitRange>>()
+                {
+                    ErrorMessage = $"{nameof(pdfPageCount)} must be greater than 0."
+                };
+            }
+
+            // create ranges
+            List<SplitRange> ranges = new List<SplitRange>();
+
+            int startPageNumber = 1;
+            int endPageNumber = interval;
+            while (endPageNumber < pdfPageCount)
+            {
+                ranges.Add(new SplitRange(startPageNumber, endPageNumber));
+                startPageNumber = endPageNumber + 1;
+                endPageNumber = startPageNumber + interval - 1;
+            }
+
+            if (startPageNumber < pdfPageCount && endPageNumber > pdfPageCount)
+            {
+                ranges.Add(new SplitRange(startPageNumber, pdfPageCount));
+            }
+
+            return new ServiceResponse<IEnumerable<SplitRange>>() 
+            {
+                Success = true,
+                Data = ranges,
+            };
+        }
+
+        //TODO: Quick glance this method is too long. Probably needs to be refactored.
+        /// <inheritdoc />
         public ServiceResponse<IEnumerable<SplitRange>> ParseRangesFromString(string ranges)
         {
             const string inputName = nameof(ranges);

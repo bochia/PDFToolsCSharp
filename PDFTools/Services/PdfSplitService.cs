@@ -36,37 +36,30 @@
                 };
             }
 
-            IEnumerable<SplitRange> ranges = GenerateRangesFromInterval(interval, pdfResponse.Data.PageCount);
+            ServiceResponse<IEnumerable<SplitRange>> rangesResponse = splitRangeParser.GenerateRangesFromInterval(interval, pdfResponse.Data.PageCount);
+            if (!rangesResponse.Success)
+            {
+                return new ServiceResponse<IEnumerable<string>>()
+                {
+                    ErrorMessage = rangesResponse.ErrorMessage
+                };
+            }
 
-            return SplitByRanges(pdfResponse.Data, outputFolderPath, ranges);
+            if (rangesResponse.Data == null)
+            {
+                return new ServiceResponse<IEnumerable<string>>()
+                {
+                    ErrorMessage = $"{nameof(rangesResponse)}.Data cannot be null."
+                };
+            }
+
+            return SplitByRanges(pdfResponse.Data, outputFolderPath, rangesResponse.Data);
         }
 
         /// <inheritdoc />
         public ServiceResponse<IEnumerable<Stream>> SplitByIntervalInMemory(Stream inputPdfStream, int interval)
         {
             throw new NotImplementedException();
-        }
-
-        private IEnumerable<SplitRange> GenerateRangesFromInterval(int interval, int pdfPageCount)
-        {
-            // create ranges
-            List<SplitRange> ranges = new List<SplitRange>();
-
-            int startPageNumber = 1;
-            int endPageNumber = interval;
-            while (endPageNumber < pdfPageCount)
-            {
-                ranges.Add(new SplitRange(startPageNumber, endPageNumber));
-                startPageNumber = endPageNumber + 1;
-                endPageNumber = startPageNumber + interval - 1;
-            }
-
-            if (startPageNumber < pdfPageCount && endPageNumber > pdfPageCount)
-            {
-                ranges.Add(new SplitRange(startPageNumber, pdfPageCount));
-            }
-
-            return ranges;
         }
 
         /// <inheritdoc />

@@ -2,6 +2,7 @@
 {
     public class ServiceResponse
     {
+        //TODO: Am I even using this for anything?
         public int ErrorCode { get; set; }
         public string? ErrorMessage { get; set; }
         public int HttpStatusCode { get; set; }
