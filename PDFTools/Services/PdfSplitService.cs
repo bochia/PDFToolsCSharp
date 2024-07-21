@@ -6,6 +6,10 @@
     using PDFTools.Services.Interfaces;
     using System.Collections.Generic;
 
+    //TODO: Change this into 2 classes. An in memory and a hard disk class.
+    // All the like named methods are going to get confusing and maybe will accidently use a hard disk method with a in memory method.
+    //HardDiskPdfSplitter
+    //MemoryPdfSplitter.
     public class PdfSplitService : IPdfSplitService
     {
         private const string PdfFileExtension = ".pdf";
@@ -182,7 +186,61 @@
         /// <inheritdoc />
         public ServiceResponse<IEnumerable<Stream>> SplitByRangesInMemory(Stream inputPdfStream, string ranges)
         {
-            throw new NotImplementedException();
+            if (inputPdfStream == null)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>
+                {
+                    ErrorMessage = $"{nameof(inputPdfStream)} cannot be null."
+                };
+            }
+
+            if (inputPdfStream.Length == 0)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>
+                {
+                    ErrorMessage = $"{nameof(inputPdfStream)} was empty."
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(ranges))
+            {
+                return new ServiceResponse<IEnumerable<Stream>>
+                {
+                    ErrorMessage = $"{nameof(ranges)} cannt be null or whitespace."
+                };
+            }
+
+            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfStream);
+            if (!pdfResponse.Success || pdfResponse.Data == null)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>
+                {
+                    ErrorMessage = pdfResponse.ErrorMessage
+                };
+            }
+
+            ServiceResponse<IEnumerable<SplitRange>> parseRangesResponse = splitRangeParser.ParseRangesFromString(ranges);
+
+            if (!parseRangesResponse.Success || parseRangesResponse.Data == null)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>
+                {
+                    ErrorMessage = parseRangesResponse.ErrorMessage
+                };
+            }
+
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+
+                return new ServiceResponse<IEnumerable<Stream>>
+                {
+                    ErrorMessage = $"Failed to split PDFs - {ex.Message}"
+                };
+            }
         }
 
         private string CreateOutputPdfName(string inputPdfName, SplitRange range)
@@ -203,6 +261,36 @@
             try
             {
                 PdfDocument inputPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import); //TODO: how do we stop this from memory leaking?
+
+                if (inputPdf == null)
+                {
+                    return new ServiceResponse<PdfDocument>()
+                    {
+                        ErrorMessage = "Opened PDF was null."
+                    };
+                }
+
+                return new ServiceResponse<PdfDocument>()
+                {
+                    Success = true,
+                    Data = inputPdf
+                };
+            }
+            catch (Exception ex)
+            {
+                //TODO: Add logging that includes pdf path here.
+                return new ServiceResponse<PdfDocument>()
+                {
+                    ErrorMessage = $"Failed to open PDF - {ex.Message}"
+                };
+            }
+        }
+
+        private ServiceResponse<PdfDocument> OpenPdf(Stream inputPdfStream)
+        {
+            try
+            {
+                PdfDocument inputPdf = PdfReader.Open(inputPdfStream, PdfDocumentOpenMode.Import);
 
                 if (inputPdf == null)
                 {

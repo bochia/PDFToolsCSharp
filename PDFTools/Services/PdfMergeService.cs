@@ -122,7 +122,7 @@
                 {
                     return new ServiceResponse<Stream>()
                     {
-                        ErrorMessage = "Input PDF stream was empty."
+                        ErrorMessage = $"{nameof(inputPdfStream)} was empty."
                     };
                 }
             }
@@ -165,7 +165,6 @@
             }
             catch (Exception ex)
             {
-
                 return new ServiceResponse<Stream>()
                 {
                     ErrorMessage = $"Failed to merge PDFs - {ex.Message}" //TODO: Need to make this more DRY. Search for other place it is used.
