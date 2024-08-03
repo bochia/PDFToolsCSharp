@@ -11,6 +11,7 @@ using System.Diagnostics;
 //TODO: Maybe add a feature to add a prefix to output files.
 //TODO: Go through all methods and make sure proper try catches are used.
 //TODO: Implement a service that will zip files together. Make a hard disk one and a memory version.
+//TODO: Add unit tests using XUnit and NSubstitute.
 
 string inputPdfPath = @"C:\source\repos\PDFToolsCSharp\PDFFiles\TestPdf_Max20Pages.pdf";
 string outputFolderPath = @"C:\source\repos\PDFToolsCSharp\PDFFiles\OutputFiles\";

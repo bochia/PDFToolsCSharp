@@ -150,6 +150,7 @@
                     outputPdf.Info.Title = CreateOutputPdfName(pdfName, range);
                     outputPdf.Info.CreationDate = DateTime.UtcNow;
 
+                    // TODO: can this go in a common service? Maybe a base class.
                     for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
                     {
                         outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.

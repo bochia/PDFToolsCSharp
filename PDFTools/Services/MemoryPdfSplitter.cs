@@ -7,10 +7,6 @@
     using System;
     using System.Collections.Generic;
 
-    //TODO: Change this into 2 classes. An in memory and a hard disk class.
-    // All the like named methods are going to get confusing and maybe will accidently use a hard disk method with a in memory method.
-    //HardDiskPdfSplitter
-    //MemoryPdfSplitter.
     public class MemoryPdfSplitter : IMemoryPdfSplitter
     {
         private const string PdfFileExtension = ".pdf";
@@ -143,7 +139,7 @@
                     outputPdf.Version = inputPdf.Version;
                     outputPdf.Info.Title = CreateOutputPdfName(pdfName, range);
 
-                    // TODO: can this go in a common service?
+                    // TODO: can this go in a common service? Maybe a base class.
                     for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
                     {
                         outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
