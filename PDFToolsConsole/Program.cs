@@ -24,7 +24,7 @@ static void TestMethodsThatWriteToDisk(string inputPdfPath, string outputFolderP
     DeleteAllOutputFiles(outputFolderPath);
 
     ISplitRangeParser splitRangeParser = new SplitRangeParser();
-    IPdfSplitter pdfSplitter = new PdfSplitter(splitRangeParser);
+    IHardDiskPdfSplitter pdfSplitter = new HardDiskPdfSplitter(splitRangeParser);
     ServiceResponse<IEnumerable<string>> splitResponse1 = pdfSplitter.SplitByRanges(inputPdfPath, outputFolderPath, "1,3-5,8-16");
     ServiceResponse<IEnumerable<string>> splitResponse2 = pdfSplitter.SplitByInterval(inputPdfPath, 15, outputFolderPath);
 
@@ -38,8 +38,8 @@ static void TestMethodsThatWriteToDisk(string inputPdfPath, string outputFolderP
         Console.WriteLine(splitResponse2.ErrorMessage);
     }
 
-    IPdfMerger pdfMerger = new PdfMerger();
-    ServiceResponse<string> mergeResponse = pdfMerger.MergePdfs(splitResponse1.Data, outputFolderPath);
+    IHardDiskPdfMerger pdfMerger = new HardDiskPdfMerger();
+    ServiceResponse<string> mergeResponse = pdfMerger.Merge(splitResponse1.Data, outputFolderPath);
 
     if (!mergeResponse.Success)
     {
@@ -56,7 +56,8 @@ static void TestInMemoryMethods(string inputPdfPath, string outputFolderPath)
     DeleteAllOutputFiles(outputFolderPath);
 
     ISplitRangeParser splitRangeParser = new SplitRangeParser();
-    IPdfSplitter pdfSplitter = new PdfSplitter(splitRangeParser);
+    // ochia - TODO - after memory splitter is working you should replace this hard disk instance with that.
+    IHardDiskPdfSplitter pdfSplitter = new HardDiskPdfSplitter(splitRangeParser);
     ServiceResponse<IEnumerable<string>> splitResponse1 = pdfSplitter.SplitByRanges(inputPdfPath, outputFolderPath, "1,3-5,8-16");
 
     if (!splitResponse1.Success)
@@ -72,8 +73,8 @@ static void TestInMemoryMethods(string inputPdfPath, string outputFolderPath)
         pdfStreams.Add(inMemoryPdf);
     }
 
-    IPdfMerger pdfMerger = new PdfMerger();
-    ServiceResponse<Stream> inMemoryMergeResponse = pdfMerger.MergePdfsInMemory(pdfStreams);
+    IMemoryPdfMerger pdfMerger = new MemoryPdfMerger();
+    ServiceResponse<Stream> inMemoryMergeResponse = pdfMerger.Merge(pdfStreams);
 
     // Open a FileStream to write to the file
     using (FileStream fs = new FileStream($"{outputFolderPath}InMemoryMergeResult.pdf", FileMode.Create, FileAccess.Write))
