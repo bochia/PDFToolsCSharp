@@ -52,7 +52,7 @@
             };
         }
 
-        //TODO: Quick glance this method is too long. Probably needs to be refactored.
+        //TODO: Quick glance this method is too long. Probably needs to be refactored. Make unit tests for it first before doing that.
         /// <inheritdoc />
         public ServiceResponse<IEnumerable<SplitRange>> ParseRangesFromString(string ranges)
         {

@@ -144,7 +144,7 @@
 
                 foreach (SplitRange range in ranges)
                 {
-                    // ochia - TODO - this can also go in the pdf meta data service.
+                    // TODO - this can also go in the pdf meta data service.
                     PdfDocument outputPdf = new PdfDocument();
                     outputPdf.Version = inputPdf.Version;
                     outputPdf.Info.Title = CreateOutputPdfName(pdfName, range);
@@ -178,7 +178,7 @@
             };
         }
 
-        // ochia - create a service to do this logic. Maybe call it pdf meta data operations or something like that.
+        // TODO - create a service to do this logic. Maybe call it pdf meta data operations or something like that.
         private string CreateOutputPdfName(string inputPdfName, SplitRange range)
         {
             string outputPdfName = $"{inputPdfName}_Page_{range.StartPageNumber}";
