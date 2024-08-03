@@ -2,7 +2,7 @@
 {
     using PDFTools.Models;
 
-    public interface IPdfSplitService
+    public interface IPdfSplitter
     {
         /// <summary>
         /// Splits PDF according to provided interval using file storage.

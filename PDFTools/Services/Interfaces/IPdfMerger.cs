@@ -2,7 +2,7 @@
 {
     using PDFTools.Models;
 
-    public interface IPdfMergeService
+    public interface IPdfMerger
     {
         /// <summary>
         /// Merges PDFs in order they were passed using file storage.

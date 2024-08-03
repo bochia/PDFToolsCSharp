@@ -6,7 +6,7 @@
     using PDFTools.Services.Interfaces;
     using System.Collections.Generic;
 
-    public class PdfMergeService : IPdfMergeService
+    public class PdfMerger : IPdfMerger
     {
         private const string PdfFileExtension = ".pdf";
         private const string ResultFileName = "Merge_Result"; //TODO: Make merge result add the datetime to the name.
