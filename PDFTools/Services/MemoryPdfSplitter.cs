@@ -21,10 +21,45 @@
             this.splitRangeParser = splitRangeParser;
         }
 
+        //TODO: Need to test this method functionaly.
         /// <inheritdoc />
         public ServiceResponse<IEnumerable<Stream>> SplitByInterval(Stream inputPdfStream, int interval)
         {
-            throw new NotImplementedException();
+            if (inputPdfStream == null)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>
+                {
+                    ErrorMessage = $"{nameof(inputPdfStream)} cannot be null."
+                };
+            }
+
+            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfStream);
+            if (!pdfResponse.Success || pdfResponse.Data == null)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>()
+                {
+                    ErrorMessage = pdfResponse.ErrorMessage
+                };
+            }
+
+            ServiceResponse<IEnumerable<SplitRange>> rangesResponse = splitRangeParser.GenerateRangesFromInterval(interval, pdfResponse.Data.PageCount);
+            if (!rangesResponse.Success)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>()
+                {
+                    ErrorMessage = rangesResponse.ErrorMessage
+                };
+            }
+
+            if (rangesResponse.Data == null)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>()
+                {
+                    ErrorMessage = $"{nameof(rangesResponse)}.Data cannot be null."
+                };
+            }
+
+            return SplitByRanges(pdfResponse.Data, rangesResponse.Data);
         }
 
         /// <inheritdoc />
@@ -98,17 +133,17 @@
 
             try
             {
-                // ochia - TODO - need to confirm this is the correct way to get the name.
+                // TODO: need to confirm this is the correct way to get the name.
                 string pdfName = inputPdf.Info.Title;
 
                 foreach (SplitRange range in ranges)
                 {
-                    // ochia - TODO - this can also go in the pdf meta data service.
+                    // TODO: this can also go in the pdf meta data service.
                     PdfDocument outputPdf = new PdfDocument();
                     outputPdf.Version = inputPdf.Version;
                     outputPdf.Info.Title = CreateOutputPdfName(pdfName, range);
 
-                    // ochia - TODO - can this go in a common service?
+                    // TODO: can this go in a common service?
                     for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
                     {
                         outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
@@ -135,7 +170,7 @@
             }
         }
 
-        // ochia - create a service to do this logic. Maybe call it pdf meta data operations or something like that.
+        // TODO: create a service to do this logic. Maybe call it pdf meta data operations or something like that.
         private string CreateOutputPdfName(string inputPdfName, SplitRange range)
         {
             string outputPdfName = $"{inputPdfName}_Page_{range.StartPageNumber}";
