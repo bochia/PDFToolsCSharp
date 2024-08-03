@@ -27,7 +27,7 @@ static void TestMethodsThatWriteToDisk(string inputPdfPath, string outputFolderP
     DeleteAllOutputFiles(outputFolderPath);
 
     ISplitRangeParser splitRangeParser = new SplitRangeParser();
-    IHardDiskPdfSplitter pdfSplitter = new HardDiskPdfSplitter(splitRangeParser);
+    IStoragePdfSplitter pdfSplitter = new StoragePdfSplitter(splitRangeParser);
     ServiceResponse<IEnumerable<string>> splitResponse1 = pdfSplitter.SplitByRanges(inputPdfPath, outputFolderPath, ranges);
     ServiceResponse<IEnumerable<string>> splitResponse2 = pdfSplitter.SplitByInterval(inputPdfPath, 15, outputFolderPath);
 
@@ -41,7 +41,7 @@ static void TestMethodsThatWriteToDisk(string inputPdfPath, string outputFolderP
         Console.WriteLine(splitResponse2.ErrorMessage);
     }
 
-    IHardDiskPdfMerger pdfMerger = new HardDiskPdfMerger();
+    IStoragePdfMerger pdfMerger = new StoragePdfMerger();
     ServiceResponse<string> mergeResponse = pdfMerger.Merge(splitResponse1.Data, outputFolderPath);
 
     if (!mergeResponse.Success)

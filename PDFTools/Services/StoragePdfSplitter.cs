@@ -10,12 +10,12 @@
     // All the like named methods are going to get confusing and maybe will accidently use a hard disk method with a in memory method.
     //HardDiskPdfSplitter
     //MemoryPdfSplitter.
-    public class HardDiskPdfSplitter : IHardDiskPdfSplitter
+    public class StoragePdfSplitter : IStoragePdfSplitter
     {
         private const string PdfFileExtension = ".pdf";
         private readonly ISplitRangeParser splitRangeParser;
 
-        public HardDiskPdfSplitter(ISplitRangeParser splitRangeParser)
+        public StoragePdfSplitter(ISplitRangeParser splitRangeParser)
         {
             this.splitRangeParser = splitRangeParser;
         }

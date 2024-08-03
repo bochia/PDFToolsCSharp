@@ -6,7 +6,7 @@
     using PDFTools.Services.Interfaces;
     using System.Collections.Generic;
 
-    public class HardDiskPdfMerger : IHardDiskPdfMerger
+    public class StoragePdfMerger : IStoragePdfMerger
     {
         private const string PdfFileExtension = ".pdf";
         private const string ResultFileName = "Merge_Result"; //TODO: Make merge result add the datetime to the name.

@@ -2,7 +2,7 @@
 {
     using PDFTools.Models;
 
-    public interface IHardDiskPdfSplitter
+    public interface IStoragePdfSplitter
     {
         /// <summary>
         /// Splits PDF according to provided interval using file storage.

@@ -2,7 +2,7 @@
 {
     using PDFTools.Models;
 
-    public interface IHardDiskPdfMerger
+    public interface IStoragePdfMerger
     {
         /// <summary>
         /// Merges PDFs in order they were passed using file storage.
