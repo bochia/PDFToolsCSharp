@@ -221,11 +221,5 @@
                 };
             }
         }
-
-        // ochia - TODO - need to implement this. Probably move this to a different service.
-        private string ZipOutputPdfsTogether()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
