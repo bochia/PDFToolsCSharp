@@ -61,7 +61,7 @@
                     }
 
                     MemoryStream outputPdfStream = new MemoryStream();
-                    outputPdf.Save(outputPdfStream, false); //TODO: should I close the stream here?
+                    outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
 
                     return new ServiceResponse<Stream>()
                     {

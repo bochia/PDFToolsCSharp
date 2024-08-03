@@ -4,6 +4,7 @@
     using PdfSharpCore.Pdf.IO;
     using PDFTools.Models;
     using PDFTools.Services.Interfaces;
+    using System;
     using System.Collections.Generic;
 
     //TODO: Change this into 2 classes. An in memory and a hard disk class.
@@ -72,9 +73,57 @@
                 };
             }
 
+            return SplitByRanges(pdfResponse.Data, parseRangesResponse.Data);
+        }
+
+        private ServiceResponse<IEnumerable<Stream>> SplitByRanges(PdfDocument inputPdf, IEnumerable<SplitRange> ranges)
+        {
+            if (inputPdf == null)
+            {
+                return new ServiceResponse<IEnumerable<Stream>>()
+                {
+                    ErrorMessage = $"{nameof(inputPdf)} cannot be null."
+                };
+            }
+
+            if (ranges == null || !ranges.Any())
+            {
+                return new ServiceResponse<IEnumerable<Stream>>()
+                {
+                    ErrorMessage = $"{nameof(ranges)} cannot be null or empty."
+                };
+            }
+
+            List<Stream> outputPdfSteams = new List<Stream>();
+
             try
             {
-                throw new NotImplementedException();
+                // ochia - TODO - need to confirm this is the correct way to get the name.
+                string pdfName = inputPdf.Info.Title;
+
+                foreach (SplitRange range in ranges)
+                {
+                    // ochia - TODO - this can also go in the pdf meta data service.
+                    PdfDocument outputPdf = new PdfDocument();
+                    outputPdf.Version = inputPdf.Version;
+                    outputPdf.Info.Title = CreateOutputPdfName(pdfName, range);
+
+                    // ochia - TODO - can this go in a common service?
+                    for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
+                    {
+                        outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
+                    }
+                
+                    MemoryStream outputPdfStream = new MemoryStream();
+                    outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
+                    outputPdfSteams.Add(outputPdfStream);
+                }
+
+                return new ServiceResponse<IEnumerable<Stream>>()
+                {
+                    Success = true,
+                    Data = outputPdfSteams
+                };
             }
             catch (Exception ex)
             {
@@ -86,6 +135,7 @@
             }
         }
 
+        // ochia - create a service to do this logic. Maybe call it pdf meta data operations or something like that.
         private string CreateOutputPdfName(string inputPdfName, SplitRange range)
         {
             string outputPdfName = $"{inputPdfName}_Page_{range.StartPageNumber}";
@@ -128,7 +178,7 @@
             }
         }
 
-        // ochia - TODO - need to implement this.
+        // ochia - TODO - need to implement this. Probably move this to a different service.
         private string ZipOutputPdfsTogether()
         {
             throw new NotImplementedException();
