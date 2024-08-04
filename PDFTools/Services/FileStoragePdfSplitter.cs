@@ -6,12 +6,15 @@
     using PDFTools.Services.Interfaces;
     using System.Collections.Generic;
 
-    public class StoragePdfSplitter : PdfSplitterBase, IStoragePdfSplitter
+    /// <summary>
+    /// PDF splitter that uses file storage in order to split PDFs.
+    /// </summary>
+    public class FileStoragePdfSplitter : PdfSplitterBase, IStoragePdfSplitter
     {
         private const string PdfFileExtension = ".pdf";
         private readonly ISplitRangeParser splitRangeParser;
 
-        public StoragePdfSplitter(ISplitRangeParser splitRangeParser)
+        public FileStoragePdfSplitter(ISplitRangeParser splitRangeParser)
         {
             this.splitRangeParser = splitRangeParser;
         }

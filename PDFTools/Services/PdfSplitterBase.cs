@@ -8,6 +8,9 @@
     using System.Text;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Base class for pdf splitters.
+    /// </summary>
     public abstract class PdfSplitterBase
     {
         protected PdfDocument CreateNewPdfDocumentFromRange(PdfDocument inputPdf, SplitRange range, string inputPdfName)

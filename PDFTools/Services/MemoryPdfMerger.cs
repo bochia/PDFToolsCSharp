@@ -9,7 +9,7 @@
     public class MemoryPdfMerger : IMemoryPdfMerger
     {
         private const string PdfFileExtension = ".pdf";
-        private const string ResultFileName = "Merge_Result"; //TODO: Make merge result add the datetime to the name.
+        private const string ResultFileName = "MergeResult"; //TODO: Make merge result add the datetime to the name.
 
         /// <inheritdoc />
         public ServiceResponse<Stream> Merge(IEnumerable<Stream> inputPdfStreams)

@@ -7,6 +7,9 @@
     using System;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// PDF splitter that can split PDFs entirely in memory without using file storage.
+    /// </summary>
     public class MemoryPdfSplitter : PdfSplitterBase, IMemoryPdfSplitter
     {
         private const string PdfFileExtension = ".pdf";

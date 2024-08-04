@@ -6,10 +6,10 @@
     using PDFTools.Services.Interfaces;
     using System.Collections.Generic;
 
-    public class StoragePdfMerger : IStoragePdfMerger
+    public class FileStoragePdfMerger : IStoragePdfMerger
     {
         private const string PdfFileExtension = ".pdf";
-        private const string ResultFileName = "Merge_Result"; //TODO: Make merge result add the datetime to the name.
+        private const string ResultFileName = "MergeResult"; //TODO: Make merge result add the datetime to the name.
 
         /// <inheritdoc />
         public ServiceResponse<string> Merge(IEnumerable<string> inputPdfPaths, string outputFolderPath)
