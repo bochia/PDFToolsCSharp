@@ -9,6 +9,7 @@
         private const char Comma = ',';
         private const char Hyphen = '-';
 
+        //TODO: Need to unit test this method.
         /// <inheritdoc />
         public ServiceResponse<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount)
         {
@@ -33,7 +34,7 @@
 
             int startPageNumber = 1;
             int endPageNumber = interval;
-            while (endPageNumber < pdfPageCount)
+            while (endPageNumber <= pdfPageCount)
             {
                 ranges.Add(new SplitRange(startPageNumber, endPageNumber));
                 startPageNumber = endPageNumber + 1;
