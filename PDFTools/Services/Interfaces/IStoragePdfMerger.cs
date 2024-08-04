@@ -10,6 +10,6 @@
         /// <returns>
         /// Returns path to resulting PDF.
         /// </returns>
-        ServiceResponse<string> Merge(IEnumerable<string> inputPdfPaths, string outputFolderPath);
+        Attempt<string> Merge(IEnumerable<string> inputPdfPaths, string outputFolderPath);
     }
 }

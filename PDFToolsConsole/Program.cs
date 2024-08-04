@@ -4,7 +4,6 @@ using PDFTools.Services;
 using PDFTools.Services.Interfaces;
 using System.Diagnostics;
 
-//TODO: Can turn this into a nuget package, then use that in your website project. Make the console program internal only. Dont allow to be seen in nuget package.
 //TODO: Create a PDF macro editor that can do stuff like SplitThenMerge etc..
 //TODO: Need to make sure all of my guard clauses are good.
 //TODO: Add unit tests using xUnit and NSubstitute.
@@ -13,7 +12,6 @@ using System.Diagnostics;
 //TODO: Implement a service that will zip files together. Make a hard disk one and a memory version.
 //TODO: Add unit tests using XUnit and NSubstitute.
 //TODO: Create a name generating service. Add a feature where the user can write their own prefix, suffix, or entire name for the storage splitters.
-//TODO: What is the proper way to name base classes? Put base at the start or at the end?
 //TODO: Move ToDos to a readme file in the library project.
 
 string inputPdfPath = @"C:\source\repos\PDFToolsCSharp\PDFFiles\TestPdf_Max20Pages.pdf";
@@ -33,25 +31,25 @@ static void TestMethodsThatWriteToDisk(string inputPdfPath, string outputFolderP
 
     ISplitRangeParser splitRangeParser = new SplitRangeParser();
     IStoragePdfSplitter pdfSplitter = new FileStoragePdfSplitter(splitRangeParser);
-    ServiceResponse<IEnumerable<string>> splitResponse1 = pdfSplitter.SplitByRanges(inputPdfPath, outputFolderPathForStorageFolder, ranges);
-    ServiceResponse<IEnumerable<string>> splitResponse2 = pdfSplitter.SplitByInterval(inputPdfPath, 15, outputFolderPathForStorageFolder);
+    Attempt<IEnumerable<string>> splitAttempt1 = pdfSplitter.SplitByRanges(inputPdfPath, outputFolderPathForStorageFolder, ranges);
+    Attempt<IEnumerable<string>> splitAttempt2 = pdfSplitter.SplitByInterval(inputPdfPath, 15, outputFolderPathForStorageFolder);
 
-    if (!splitResponse1.Success)
+    if (!splitAttempt1.Success)
     {
-        Console.WriteLine(splitResponse1.ErrorMessage);
+        Console.WriteLine(splitAttempt1.ErrorMessage);
     }
 
-    if (!splitResponse2.Success)
+    if (!splitAttempt2.Success)
     {
-        Console.WriteLine(splitResponse2.ErrorMessage);
+        Console.WriteLine(splitAttempt2.ErrorMessage);
     }
 
     IStoragePdfMerger pdfMerger = new FileStoragePdfMerger();
-    ServiceResponse<string> mergeResponse = pdfMerger.Merge(splitResponse1.Data, outputFolderPathForStorageFolder);
+    Attempt<string> mergeAttempt = pdfMerger.Merge(splitAttempt1.Data, outputFolderPathForStorageFolder);
 
-    if (!mergeResponse.Success)
+    if (!mergeAttempt.Success)
     {
-        Console.WriteLine(mergeResponse.ErrorMessage);
+        Console.WriteLine(mergeAttempt.ErrorMessage);
     }
 
     // open up file explorer so you can look at the results.
@@ -80,16 +78,16 @@ static void TestInMemoryMethods(string inputPdfPath, string outputFolderPath, st
 static void InMemorySplitByRangesAndThenMerge(FileStream inputPdfStream, string outputFolderPath, ISplitRangeParser splitRangeParser, string ranges)
 {
     IMemoryPdfSplitter pdfSplitter = new MemoryPdfSplitter(splitRangeParser);
-    ServiceResponse<IEnumerable<Stream>> splitResponse = pdfSplitter.SplitByRanges(inputPdfStream, ranges);
+    Attempt<IEnumerable<Stream>> splitAttempt = pdfSplitter.SplitByRanges(inputPdfStream, ranges);
 
     IMemoryPdfMerger pdfMerger = new MemoryPdfMerger();
-    ServiceResponse<Stream> inMemoryMergeResponse = pdfMerger.Merge(splitResponse.Data);
+    Attempt<Stream> inMemoryMergeAttempt = pdfMerger.Merge(splitAttempt.Data);
 
     // Open a FileStream to write to the file
     using (FileStream fs = new FileStream($"{outputFolderPath}InMemoryMergeResult_FromSplitByRange_{ranges}.pdf", FileMode.Create, FileAccess.Write))
     {
         // Copy data from MemoryStream to FileStream
-        inMemoryMergeResponse.Data.CopyTo(fs);
+        inMemoryMergeAttempt.Data.CopyTo(fs);
         Console.WriteLine("Stream data written to file successfully.");
     }
 }
@@ -99,11 +97,11 @@ static void InMemorySplitByInternal(FileStream inputPdfStream, string outputFold
     int internval = 5;
 
     IMemoryPdfSplitter pdfSplitter = new MemoryPdfSplitter(splitRangeParser);
-    ServiceResponse<IEnumerable<Stream>> splitResponse = pdfSplitter.SplitByInterval(inputPdfStream, internval);
+    Attempt<IEnumerable<Stream>> splitAttempt = pdfSplitter.SplitByInterval(inputPdfStream, internval);
 
 
     int index = 0;
-    foreach (Stream pdfStream in splitResponse.Data)
+    foreach (Stream pdfStream in splitAttempt.Data)
     {
         // Open a FileStream to write to the file to output folder
         using (FileStream fs = new FileStream($"{outputFolderPath}InMemorySplitByInternvalResult_{index}.pdf", FileMode.Create, FileAccess.Write))

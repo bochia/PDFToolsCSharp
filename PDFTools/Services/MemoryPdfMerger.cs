@@ -12,11 +12,11 @@
         private const string ResultFileName = "MergeResult"; //TODO: Make merge result add the datetime to the name.
 
         /// <inheritdoc />
-        public ServiceResponse<Stream> Merge(IEnumerable<Stream> inputPdfStreams)
+        public Attempt<Stream> Merge(IEnumerable<Stream> inputPdfStreams)
         {
             if (inputPdfStreams == null || !inputPdfStreams.Any())
             {
-                return new ServiceResponse<Stream>()
+                return new Attempt<Stream>()
                 {
                     ErrorMessage = $"{nameof(inputPdfStreams)} cannot be null or empty."
                 };
@@ -27,7 +27,7 @@
             {
                 if (inputPdfStream.Length == 0)
                 {
-                    return new ServiceResponse<Stream>()
+                    return new Attempt<Stream>()
                     {
                         ErrorMessage = $"{nameof(inputPdfStream)} was empty."
                     };
@@ -47,7 +47,7 @@
                         {
                             if (inputPdf == null)
                             {
-                                return new ServiceResponse<Stream>()
+                                return new Attempt<Stream>()
                                 {
                                     ErrorMessage = $"Couldn't open PDF using input PDF stream"
                                 };
@@ -63,7 +63,7 @@
                     MemoryStream outputPdfStream = new MemoryStream();
                     outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
 
-                    return new ServiceResponse<Stream>()
+                    return new Attempt<Stream>()
                     {
                         Success = true,
                         Data = outputPdfStream,
@@ -72,7 +72,7 @@
             }
             catch (Exception ex)
             {
-                return new ServiceResponse<Stream>()
+                return new Attempt<Stream>()
                 {
                     ErrorMessage = $"Failed to merge PDFs - {ex.Message}" //TODO: Need to make this more DRY. Search for other place it is used.
                 };

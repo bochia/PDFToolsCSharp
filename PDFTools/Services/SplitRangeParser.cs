@@ -11,11 +11,11 @@
 
         //TODO: Need to unit test this method.
         /// <inheritdoc />
-        public ServiceResponse<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount)
+        public Attempt<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount)
         {
             if (interval <= 0)
             {
-                return new ServiceResponse<IEnumerable<SplitRange>>()
+                return new Attempt<IEnumerable<SplitRange>>()
                 {
                     ErrorMessage = $"{nameof(interval)} must be greater than 0."
                 };
@@ -23,7 +23,7 @@
 
             if (pdfPageCount <= 0)
             {
-                return new ServiceResponse<IEnumerable<SplitRange>>()
+                return new Attempt<IEnumerable<SplitRange>>()
                 {
                     ErrorMessage = $"{nameof(pdfPageCount)} must be greater than 0."
                 };
@@ -46,7 +46,7 @@
                 ranges.Add(new SplitRange(startPageNumber, pdfPageCount));
             }
 
-            return new ServiceResponse<IEnumerable<SplitRange>>() 
+            return new Attempt<IEnumerable<SplitRange>>() 
             {
                 Success = true,
                 Data = ranges,
@@ -55,13 +55,13 @@
 
         //TODO: Quick glance this method is too long. Probably needs to be refactored. Make unit tests for it first before doing that.
         /// <inheritdoc />
-        public ServiceResponse<IEnumerable<SplitRange>> ParseRangesFromString(string ranges)
+        public Attempt<IEnumerable<SplitRange>> ParseRangesFromString(string ranges)
         {
             const string inputName = nameof(ranges);
 
             if (string.IsNullOrWhiteSpace(ranges))
             {
-                return new ServiceResponse<IEnumerable<SplitRange>>()
+                return new Attempt<IEnumerable<SplitRange>>()
                 {
                     ErrorMessage = $"{inputName} cannt be null or whitespace."
                 };
@@ -73,13 +73,13 @@
             {
                 ranges = RemoveIrrelevantCharacters(ranges);
 
-                ServiceResponse validCharactersResponse = CheckOnlyHasAllowedCharacters(ranges);
+                Attempt validCharactersAttempt = CheckOnlyHasAllowedCharacters(ranges);
 
-                if (!validCharactersResponse.Success)
+                if (!validCharactersAttempt.Success)
                 {
-                    return new ServiceResponse<IEnumerable<SplitRange>>()
+                    return new Attempt<IEnumerable<SplitRange>>()
                     {
-                        ErrorMessage = validCharactersResponse.ErrorMessage
+                        ErrorMessage = validCharactersAttempt.ErrorMessage
                     };
                 }
 
@@ -94,44 +94,44 @@
                     {
                         string[] startAndEndNumbers = range.Split(Hyphen);
 
-                        ServiceResponse<int> startPageNumberResponse = ConvertStringToInt(startAndEndNumbers[0]);
+                        Attempt<int> startPageNumberAttempt = ConvertStringToInt(startAndEndNumbers[0]);
 
-                        if (!startPageNumberResponse.Success)
+                        if (!startPageNumberAttempt.Success)
                         {
-                            return new ServiceResponse<IEnumerable<SplitRange>>()
+                            return new Attempt<IEnumerable<SplitRange>>()
                             {
-                                ErrorMessage = startPageNumberResponse.ErrorMessage
+                                ErrorMessage = startPageNumberAttempt.ErrorMessage
                             };
                         }
 
-                        ServiceResponse<int> endPageNumberResponse = ConvertStringToInt(startAndEndNumbers[1]);
+                        Attempt<int> endPageNumberAttempt = ConvertStringToInt(startAndEndNumbers[1]);
 
-                        if (!endPageNumberResponse.Success)
+                        if (!endPageNumberAttempt.Success)
                         {
-                            return new ServiceResponse<IEnumerable<SplitRange>>()
+                            return new Attempt<IEnumerable<SplitRange>>()
                             {
-                                ErrorMessage = endPageNumberResponse.ErrorMessage
+                                ErrorMessage = endPageNumberAttempt.ErrorMessage
                             };
                         }
 
-                        splitRange = new SplitRange(startPageNumberResponse.Data,
-                                                      endPageNumberResponse.Data);
+                        splitRange = new SplitRange(startPageNumberAttempt.Data,
+                                                      endPageNumberAttempt.Data);
                     }
                     else
                     {
                         string rangeWithSingleNumber = range;
-                        ServiceResponse<int> startPageNumberResponse = ConvertStringToInt(rangeWithSingleNumber);
+                        Attempt<int> startPageNumberAttempt = ConvertStringToInt(rangeWithSingleNumber);
 
-                        if (!startPageNumberResponse.Success)
+                        if (!startPageNumberAttempt.Success)
                         {
-                            return new ServiceResponse<IEnumerable<SplitRange>>()
+                            return new Attempt<IEnumerable<SplitRange>>()
                             {
-                                ErrorMessage = startPageNumberResponse.ErrorMessage
+                                ErrorMessage = startPageNumberAttempt.ErrorMessage
                             };
                         }
 
-                        splitRange = new SplitRange(startPageNumberResponse.Data,
-                                                    startPageNumberResponse.Data);
+                        splitRange = new SplitRange(startPageNumberAttempt.Data,
+                                                    startPageNumberAttempt.Data);
 
                     }
 
@@ -140,13 +140,13 @@
             }
             catch (Exception ex)
             {
-                return new ServiceResponse<IEnumerable<SplitRange>>()
+                return new Attempt<IEnumerable<SplitRange>>()
                 {
                     ErrorMessage = $"Failed to parse ranges from string - {ex.Message}"
                 };
             }
 
-            return new ServiceResponse<IEnumerable<SplitRange>>()
+            return new Attempt<IEnumerable<SplitRange>>()
             {
                 Success = true,
                 Data = rangesList
@@ -160,38 +160,38 @@
         /// </summary>
         /// <param name="ranges"></param>
         /// <returns></returns>
-        private ServiceResponse CheckOnlyHasAllowedCharacters(string ranges)
+        private Attempt CheckOnlyHasAllowedCharacters(string ranges)
         {
             foreach (char character in ranges)
             {
                 if (!char.IsDigit(character) && character != Hyphen && character != Comma)
                 {
-                    return new ServiceResponse()
+                    return new Attempt()
                     {
                         ErrorMessage = $"The character '{character}' is not permitted in a valid range input.",
                     };
                 }
             }
 
-            return new ServiceResponse()
+            return new Attempt()
             {
                 Success = true,
             };
         }
 
-        private ServiceResponse<int> ConvertStringToInt(string stringNumber)
+        private Attempt<int> ConvertStringToInt(string stringNumber)
         {
             int number;
 
             if (!int.TryParse(stringNumber, out number))
             {
-                return new ServiceResponse<int>()
+                return new Attempt<int>()
                 {
                     ErrorMessage = $"Failed to parse ranges - {stringNumber} couldn't be converted to an integer."
                 };
             }
 
-            return new ServiceResponse<int>()
+            return new Attempt<int>()
             {
                 Success = true,
                 Data = number

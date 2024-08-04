@@ -12,7 +12,7 @@
         /// <returns>
         /// Returns paths to output PDFs.
         /// </returns>
-        ServiceResponse<IEnumerable<Stream>> SplitByInterval(Stream inputPdfStream, int interval);
+        Attempt<IEnumerable<Stream>> SplitByInterval(Stream inputPdfStream, int interval);
 
         /// <summary>
         /// Splits PDF according to provided ranges and occurs entirely in memory.
@@ -22,6 +22,6 @@
         /// <returns>
         /// Returns output PDFs as Streams.
         /// </returns>
-        ServiceResponse<IEnumerable<Stream>> SplitByRanges(Stream inputPdfStream, string ranges);
+        Attempt<IEnumerable<Stream>> SplitByRanges(Stream inputPdfStream, string ranges);
     }
 }

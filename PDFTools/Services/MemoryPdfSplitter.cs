@@ -22,51 +22,51 @@
 
         //TODO: Need to test this method functionaly.
         /// <inheritdoc />
-        public ServiceResponse<IEnumerable<Stream>> SplitByInterval(Stream inputPdfStream, int interval)
+        public Attempt<IEnumerable<Stream>> SplitByInterval(Stream inputPdfStream, int interval)
         {
             if (inputPdfStream == null)
             {
-                return new ServiceResponse<IEnumerable<Stream>>
+                return new Attempt<IEnumerable<Stream>>
                 {
                     ErrorMessage = $"{nameof(inputPdfStream)} cannot be null."
                 };
             }
 
-            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfStream);
-            if (!pdfResponse.Success || pdfResponse.Data == null)
+            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
+            if (!pdfAttempt.Success || pdfAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<Stream>>()
+                return new Attempt<IEnumerable<Stream>>()
                 {
-                    ErrorMessage = pdfResponse.ErrorMessage
+                    ErrorMessage = pdfAttempt.ErrorMessage
                 };
             }
 
-            ServiceResponse<IEnumerable<SplitRange>> rangesResponse = splitRangeParser.GenerateRangesFromInterval(interval, pdfResponse.Data.PageCount);
-            if (!rangesResponse.Success)
+            Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, pdfAttempt.Data.PageCount);
+            if (!rangesAttempt.Success)
             {
-                return new ServiceResponse<IEnumerable<Stream>>()
+                return new Attempt<IEnumerable<Stream>>()
                 {
-                    ErrorMessage = rangesResponse.ErrorMessage
+                    ErrorMessage = rangesAttempt.ErrorMessage
                 };
             }
 
-            if (rangesResponse.Data == null)
+            if (rangesAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<Stream>>()
+                return new Attempt<IEnumerable<Stream>>()
                 {
-                    ErrorMessage = $"{nameof(rangesResponse)}.Data cannot be null."
+                    ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
                 };
             }
 
-            return SplitByRanges(pdfResponse.Data, rangesResponse.Data);
+            return SplitByRanges(pdfAttempt.Data, rangesAttempt.Data);
         }
 
         /// <inheritdoc />
-        public ServiceResponse<IEnumerable<Stream>> SplitByRanges(Stream inputPdfStream, string ranges)
+        public Attempt<IEnumerable<Stream>> SplitByRanges(Stream inputPdfStream, string ranges)
         {
             if (inputPdfStream == null)
             {
-                return new ServiceResponse<IEnumerable<Stream>>
+                return new Attempt<IEnumerable<Stream>>
                 {
                     ErrorMessage = $"{nameof(inputPdfStream)} cannot be null."
                 };
@@ -74,7 +74,7 @@
 
             if (inputPdfStream.Length == 0)
             {
-                return new ServiceResponse<IEnumerable<Stream>>
+                return new Attempt<IEnumerable<Stream>>
                 {
                     ErrorMessage = $"{nameof(inputPdfStream)} was empty."
                 };
@@ -82,39 +82,39 @@
 
             if (string.IsNullOrWhiteSpace(ranges))
             {
-                return new ServiceResponse<IEnumerable<Stream>>
+                return new Attempt<IEnumerable<Stream>>
                 {
                     ErrorMessage = $"{nameof(ranges)} cannt be null or whitespace."
                 };
             }
 
-            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfStream);
-            if (!pdfResponse.Success || pdfResponse.Data == null)
+            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
+            if (!pdfAttempt.Success || pdfAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<Stream>>
+                return new Attempt<IEnumerable<Stream>>
                 {
-                    ErrorMessage = pdfResponse.ErrorMessage
+                    ErrorMessage = pdfAttempt.ErrorMessage
                 };
             }
 
-            ServiceResponse<IEnumerable<SplitRange>> parseRangesResponse = splitRangeParser.ParseRangesFromString(ranges);
+            Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
 
-            if (!parseRangesResponse.Success || parseRangesResponse.Data == null)
+            if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<Stream>>
+                return new Attempt<IEnumerable<Stream>>
                 {
-                    ErrorMessage = parseRangesResponse.ErrorMessage
+                    ErrorMessage = parseRangesAttempt.ErrorMessage
                 };
             }
 
-            return SplitByRanges(pdfResponse.Data, parseRangesResponse.Data);
+            return SplitByRanges(pdfAttempt.Data, parseRangesAttempt.Data);
         }
 
-        private ServiceResponse<IEnumerable<Stream>> SplitByRanges(PdfDocument inputPdf, IEnumerable<SplitRange> ranges)
+        private Attempt<IEnumerable<Stream>> SplitByRanges(PdfDocument inputPdf, IEnumerable<SplitRange> ranges)
         {
             if (inputPdf == null)
             {
-                return new ServiceResponse<IEnumerable<Stream>>()
+                return new Attempt<IEnumerable<Stream>>()
                 {
                     ErrorMessage = $"{nameof(inputPdf)} cannot be null."
                 };
@@ -122,7 +122,7 @@
 
             if (ranges == null || !ranges.Any())
             {
-                return new ServiceResponse<IEnumerable<Stream>>()
+                return new Attempt<IEnumerable<Stream>>()
                 {
                     ErrorMessage = $"{nameof(ranges)} cannot be null or empty."
                 };
@@ -143,7 +143,7 @@
                     outputPdfSteams.Add(outputPdfStream);
                 }
 
-                return new ServiceResponse<IEnumerable<Stream>>()
+                return new Attempt<IEnumerable<Stream>>()
                 {
                     Success = true,
                     Data = outputPdfSteams
@@ -152,14 +152,14 @@
             catch (Exception ex)
             {
 
-                return new ServiceResponse<IEnumerable<Stream>>
+                return new Attempt<IEnumerable<Stream>>
                 {
                     ErrorMessage = $"Failed to split PDFs - {ex.Message}"
                 };
             }
         }
 
-        private ServiceResponse<PdfDocument> OpenPdf(Stream inputPdfStream)
+        private Attempt<PdfDocument> OpenPdf(Stream inputPdfStream)
         {
             try
             {
@@ -167,13 +167,13 @@
 
                 if (inputPdf == null)
                 {
-                    return new ServiceResponse<PdfDocument>()
+                    return new Attempt<PdfDocument>()
                     {
                         ErrorMessage = "Opened PDF was null."
                     };
                 }
 
-                return new ServiceResponse<PdfDocument>()
+                return new Attempt<PdfDocument>()
                 {
                     Success = true,
                     Data = inputPdf
@@ -182,7 +182,7 @@
             catch (Exception ex)
             {
                 //TODO: Add logging that includes pdf path here.
-                return new ServiceResponse<PdfDocument>()
+                return new Attempt<PdfDocument>()
                 {
                     ErrorMessage = $"Failed to open PDF - {ex.Message}"
                 };

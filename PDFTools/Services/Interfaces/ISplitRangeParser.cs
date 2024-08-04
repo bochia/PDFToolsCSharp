@@ -4,13 +4,13 @@
 
     public interface ISplitRangeParser
     {
-        ServiceResponse<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount);
+        Attempt<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount);
 
         /// <summary>
         /// Tries to parse ranges from strings.
         /// </summary>
         /// <param name="ranges"></param>
         /// <returns></returns>
-        ServiceResponse<IEnumerable<SplitRange>> ParseRangesFromString(string ranges);
+        Attempt<IEnumerable<SplitRange>> ParseRangesFromString(string ranges);
     }
 }

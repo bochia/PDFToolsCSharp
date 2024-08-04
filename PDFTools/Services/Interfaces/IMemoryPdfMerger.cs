@@ -10,6 +10,6 @@
         /// <returns>
         /// Returns Steam of PDF.
         /// </returns>
-        ServiceResponse<Stream> Merge(IEnumerable<Stream> inputPdfStreams);
+        Attempt<Stream> Merge(IEnumerable<Stream> inputPdfStreams);
     }
 }

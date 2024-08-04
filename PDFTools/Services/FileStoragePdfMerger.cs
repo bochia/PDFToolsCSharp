@@ -12,11 +12,11 @@
         private const string ResultFileName = "MergeResult"; //TODO: Make merge result add the datetime to the name.
 
         /// <inheritdoc />
-        public ServiceResponse<string> Merge(IEnumerable<string> inputPdfPaths, string outputFolderPath)
+        public Attempt<string> Merge(IEnumerable<string> inputPdfPaths, string outputFolderPath)
         {
             if (inputPdfPaths == null || !inputPdfPaths.Any())
             {
-                return new ServiceResponse<string>()
+                return new Attempt<string>()
                 {
                     ErrorMessage = $"{nameof(inputPdfPaths)} cannot be null or empty."
                 };
@@ -24,7 +24,7 @@
 
             if (string.IsNullOrWhiteSpace(outputFolderPath))
             {
-                return new ServiceResponse<string>()
+                return new Attempt<string>()
                 {
                     ErrorMessage = $"{nameof(outputFolderPath)} cannot be null or whitespace."
                 };
@@ -32,7 +32,7 @@
 
             if (!Directory.Exists(outputFolderPath))
             {
-                return new ServiceResponse<string>()
+                return new Attempt<string>()
                 {
                     ErrorMessage = $"Directory doesn't exist at specified location: {outputFolderPath}."
                 };
@@ -42,7 +42,7 @@
             {
                 if (!File.Exists(inputPdfPath))
                 {
-                    return new ServiceResponse<string>()
+                    return new Attempt<string>()
                     {
                         ErrorMessage = $"Couldn't find file at {inputPdfPath}"
                     };
@@ -50,7 +50,7 @@
 
                 if (!inputPdfPath.EndsWith(PdfFileExtension))
                 {
-                    return new ServiceResponse<string>()
+                    return new Attempt<string>()
                     {
                         ErrorMessage = $"Couldn't find file at {inputPdfPath}"
                     };
@@ -70,7 +70,7 @@
                         {
                             if (inputPdf == null)
                             {
-                                return new ServiceResponse<string>()
+                                return new Attempt<string>()
                                 {
                                     ErrorMessage = $"{inputPdfPath} couldn't be opened." //TODO: Only should return name of pdf not path.
                                 };
@@ -86,7 +86,7 @@
                     string outputPdfPath = $"{outputFolderPath}{ResultFileName}.pdf";
                     outputPdf.Save(outputPdfPath);
 
-                    return new ServiceResponse<string>()
+                    return new Attempt<string>()
                     {
                         Success = true,
                         Data = outputPdfPath,
@@ -96,7 +96,7 @@
             catch (Exception ex)
             {
 
-                return new ServiceResponse<string>()
+                return new Attempt<string>()
                 {
                     ErrorMessage = $"Failed to merge PDFs - {ex.Message}"
                 };

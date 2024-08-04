@@ -20,51 +20,51 @@
         }
 
         /// <inheritdoc />
-        public ServiceResponse<IEnumerable<string>> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath)
+        public Attempt<IEnumerable<string>> SplitByInterval(string inputPdfPath, int interval, string outputFolderPath)
         {
             if (string.IsNullOrWhiteSpace(inputPdfPath))
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(inputPdfPath)} cannot be null or whitespace."
                 };
             }
 
-            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfPath);
-            if (!pdfResponse.Success || pdfResponse.Data == null)
+            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfPath);
+            if (!pdfAttempt.Success || pdfAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = pdfResponse.ErrorMessage
+                    ErrorMessage = pdfAttempt.ErrorMessage
                 };
             }
 
-            ServiceResponse<IEnumerable<SplitRange>> rangesResponse = splitRangeParser.GenerateRangesFromInterval(interval, pdfResponse.Data.PageCount);
-            if (!rangesResponse.Success)
+            Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, pdfAttempt.Data.PageCount);
+            if (!rangesAttempt.Success)
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = rangesResponse.ErrorMessage
+                    ErrorMessage = rangesAttempt.ErrorMessage
                 };
             }
 
-            if (rangesResponse.Data == null)
+            if (rangesAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = $"{nameof(rangesResponse)}.Data cannot be null."
+                    ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
                 };
             }
 
-            return SplitByRanges(pdfResponse.Data, outputFolderPath, rangesResponse.Data);
+            return SplitByRanges(pdfAttempt.Data, outputFolderPath, rangesAttempt.Data);
         }
 
         /// <inheritdoc />
-        public ServiceResponse<IEnumerable<string>> SplitByRanges(string inputPdfPath, string outputFolderPath, string ranges)
+        public Attempt<IEnumerable<string>> SplitByRanges(string inputPdfPath, string outputFolderPath, string ranges)
         {
             if (string.IsNullOrWhiteSpace(inputPdfPath))
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(inputPdfPath)} cannot be null or whitespace."
                 };
@@ -72,7 +72,7 @@
 
             if (string.IsNullOrWhiteSpace(outputFolderPath))
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(outputFolderPath)} cannot be null or whitespace."
                 };
@@ -80,7 +80,7 @@
 
             if (!Directory.Exists(outputFolderPath))
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"Directory doesn't exist at specified location: {outputFolderPath}."
                 };
@@ -88,40 +88,40 @@
 
             if (string.IsNullOrWhiteSpace(ranges))
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(ranges)} cannt be null or whitespace."
                 };
             }
 
-            ServiceResponse<PdfDocument> pdfResponse = OpenPdf(inputPdfPath);
-            if (!pdfResponse.Success || pdfResponse.Data == null)
+            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfPath);
+            if (!pdfAttempt.Success || pdfAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = pdfResponse.ErrorMessage
+                    ErrorMessage = pdfAttempt.ErrorMessage
                 };
             }
 
-            ServiceResponse<IEnumerable<SplitRange>> parseRangesResponse = splitRangeParser.ParseRangesFromString(ranges);
+            Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
 
-            if (!parseRangesResponse.Success || parseRangesResponse.Data == null)
+            if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = parseRangesResponse.ErrorMessage
+                    ErrorMessage = parseRangesAttempt.ErrorMessage
                 };
             }
 
-            return SplitByRanges(pdfResponse.Data, outputFolderPath, parseRangesResponse.Data);
+            return SplitByRanges(pdfAttempt.Data, outputFolderPath, parseRangesAttempt.Data);
 
         }
 
-        private ServiceResponse<IEnumerable<string>> SplitByRanges(PdfDocument inputPdf, string outputFolderPath, IEnumerable<SplitRange> ranges)
+        private Attempt<IEnumerable<string>> SplitByRanges(PdfDocument inputPdf, string outputFolderPath, IEnumerable<SplitRange> ranges)
         {
             if (inputPdf == null)
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(inputPdf)} cannot be null."
                 };
@@ -129,7 +129,7 @@
 
             if (ranges == null || !ranges.Any())
             {
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"{nameof(ranges)} cannot be null or empty."
                 };
@@ -154,21 +154,21 @@
             catch (Exception ex)
             {
 
-                return new ServiceResponse<IEnumerable<string>>()
+                return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"Failed to split PDF - {ex.Message}"
                 };
             }
 
 
-            return new ServiceResponse<IEnumerable<string>>()
+            return new Attempt<IEnumerable<string>>()
             {
                 Success = true,
                 Data = outputPdfPaths
             };
         }
 
-        private ServiceResponse<PdfDocument> OpenPdf(string inputPdfPath)
+        private Attempt<PdfDocument> OpenPdf(string inputPdfPath)
         {
 
             try
@@ -177,13 +177,13 @@
 
                 if (inputPdf == null)
                 {
-                    return new ServiceResponse<PdfDocument>()
+                    return new Attempt<PdfDocument>()
                     {
                         ErrorMessage = "Opened PDF was null."
                     };
                 }
 
-                return new ServiceResponse<PdfDocument>()
+                return new Attempt<PdfDocument>()
                 {
                     Success = true,
                     Data = inputPdf
@@ -192,7 +192,7 @@
             catch (Exception ex)
             {
                 //TODO: Add logging that includes pdf path here.
-                return new ServiceResponse<PdfDocument>()
+                return new Attempt<PdfDocument>()
                 {
                     ErrorMessage = $"Failed to open PDF - {ex.Message}"
                 };
