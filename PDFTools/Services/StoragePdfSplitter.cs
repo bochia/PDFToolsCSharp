@@ -6,11 +6,7 @@
     using PDFTools.Services.Interfaces;
     using System.Collections.Generic;
 
-    //TODO: Change this into 2 classes. An in memory and a hard disk class.
-    // All the like named methods are going to get confusing and maybe will accidently use a hard disk method with a in memory method.
-    //HardDiskPdfSplitter
-    //MemoryPdfSplitter.
-    public class StoragePdfSplitter : IStoragePdfSplitter
+    public class StoragePdfSplitter : PdfSplitterBase, IStoragePdfSplitter
     {
         private const string PdfFileExtension = ".pdf";
         private readonly ISplitRangeParser splitRangeParser;
@@ -140,21 +136,11 @@
 
             try
             {
-                string pdfName = Path.GetFileNameWithoutExtension(inputPdf.FullPath);
+                string inputPdfName = Path.GetFileNameWithoutExtension(inputPdf.FullPath);
 
                 foreach (SplitRange range in ranges)
                 {
-                    // TODO - this can also go in the pdf meta data service.
-                    PdfDocument outputPdf = new PdfDocument();
-                    outputPdf.Version = inputPdf.Version;
-                    outputPdf.Info.Title = CreateOutputPdfName(pdfName, range);
-                    outputPdf.Info.CreationDate = DateTime.UtcNow;
-
-                    // TODO: can this go in a common service? Maybe a base class.
-                    for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
-                    {
-                        outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
-                    }
+                    PdfDocument outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName);
 
                     string outputPdfPath = $"{outputFolderPath}{outputPdf.Info.Title}{PdfFileExtension}";
                     outputPdf.Save(outputPdfPath);
@@ -177,19 +163,6 @@
                 Success = true,
                 Data = outputPdfPaths
             };
-        }
-
-        // TODO - create a service to do this logic. Maybe call it pdf meta data operations or something like that.
-        private string CreateOutputPdfName(string inputPdfName, SplitRange range)
-        {
-            string outputPdfName = $"{inputPdfName}_Page_{range.StartPageNumber}";
-
-            if (!range.EndPageNumber.HasValue)
-            {
-                return outputPdfName;
-            }
-
-            return $"{outputPdfName}_to_{range.EndPageNumber}";
         }
 
         private ServiceResponse<PdfDocument> OpenPdf(string inputPdfPath)

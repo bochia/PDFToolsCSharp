@@ -7,7 +7,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class MemoryPdfSplitter : IMemoryPdfSplitter
+    public class MemoryPdfSplitter : PdfSplitterBase, IMemoryPdfSplitter
     {
         private const string PdfFileExtension = ".pdf";
         private readonly ISplitRangeParser splitRangeParser;
@@ -129,21 +129,11 @@
 
             try
             {
-                // TODO: need to confirm this is the correct way to get the name.
-                string pdfName = inputPdf.Info.Title;
+                string inputPdfName = inputPdf.Info.Title;
 
                 foreach (SplitRange range in ranges)
                 {
-                    // TODO: this can also go in the pdf meta data service.
-                    PdfDocument outputPdf = new PdfDocument();
-                    outputPdf.Version = inputPdf.Version;
-                    outputPdf.Info.Title = CreateOutputPdfName(pdfName, range);
-
-                    // TODO: can this go in a common service? Maybe a base class.
-                    for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
-                    {
-                        outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
-                    }
+                    PdfDocument outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName);
                 
                     MemoryStream outputPdfStream = new MemoryStream();
                     outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
@@ -164,19 +154,6 @@
                     ErrorMessage = $"Failed to split PDFs - {ex.Message}"
                 };
             }
-        }
-
-        // TODO: create a service to do this logic. Maybe call it pdf meta data operations or something like that.
-        private string CreateOutputPdfName(string inputPdfName, SplitRange range)
-        {
-            string outputPdfName = $"{inputPdfName}_Page_{range.StartPageNumber}";
-
-            if (!range.EndPageNumber.HasValue)
-            {
-                return outputPdfName;
-            }
-
-            return $"{outputPdfName}_to_{range.EndPageNumber}";
         }
 
         private ServiceResponse<PdfDocument> OpenPdf(Stream inputPdfStream)

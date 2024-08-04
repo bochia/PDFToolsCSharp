@@ -12,7 +12,9 @@ using System.Diagnostics;
 //TODO: Go through all methods and make sure proper try catches are used.
 //TODO: Implement a service that will zip files together. Make a hard disk one and a memory version.
 //TODO: Add unit tests using XUnit and NSubstitute.
-//TODO: Add a feature where the user can write their own prefix, suffix, or entire name for the storage splitters.
+//TODO: Create a name generating service. Add a feature where the user can write their own prefix, suffix, or entire name for the storage splitters.
+//TODO: What is the proper way to name base classes? Put base at the start or at the end?
+//TODO: Move ToDos to a readme file in the library project.
 
 string inputPdfPath = @"C:\source\repos\PDFToolsCSharp\PDFFiles\TestPdf_Max20Pages.pdf";
 string outputFolderPath = @"C:\source\repos\PDFToolsCSharp\PDFFiles\OutputFiles";
