@@ -9,7 +9,7 @@
     public class FileStoragePdfMerger : IStoragePdfMerger
     {
         private const string PdfFileExtension = ".pdf";
-        private const string ResultFileName = "MergeResult"; //TODO: Make merge result add the datetime to the name.
+        private const string ResultFileName = "MergeResult";
 
         /// <inheritdoc />
         public Attempt<string> Merge(IEnumerable<string> inputPdfPaths, string outputFolderPath)
@@ -72,7 +72,7 @@
                             {
                                 return new Attempt<string>()
                                 {
-                                    ErrorMessage = $"{inputPdfPath} couldn't be opened." //TODO: Only should return name of pdf not path.
+                                    ErrorMessage = $"{inputPdfPath} couldn't be opened."
                                 };
                             }
 

@@ -20,7 +20,6 @@
             this.splitRangeParser = splitRangeParser;
         }
 
-        //TODO: Need to test this method functionaly.
         /// <inheritdoc />
         public Attempt<IEnumerable<Stream>> SplitByInterval(Stream inputPdfStream, int interval)
         {

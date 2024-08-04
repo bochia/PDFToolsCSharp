@@ -1,6 +1,7 @@
 ﻿namespace PDFTools.Models
 {
-    //TODO: Make method for returning new Service response with error message. Need to update all guard clauses to use it. They take up to much space.
+    //TODO: Make method for returning new Attempt with error message. Need to update all guard clauses to use it. They take up to much space.
+    //TODO: look at variables with attempt and make sure to udpate them to sound better.
     public class Attempt
     {
         public int ErrorCode { get; set; }

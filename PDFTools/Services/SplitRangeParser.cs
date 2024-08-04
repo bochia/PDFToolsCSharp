@@ -2,6 +2,7 @@
 {
     using PDFTools.Models;
     using PDFTools.Services.Interfaces;
+    using System;
     using System.Collections.Generic;
 
     public class SplitRangeParser : ISplitRangeParser
@@ -9,7 +10,6 @@
         private const char Comma = ',';
         private const char Hyphen = '-';
 
-        //TODO: Need to unit test this method.
         /// <inheritdoc />
         public Attempt<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount)
         {
@@ -53,7 +53,6 @@
             };
         }
 
-        //TODO: Quick glance this method is too long. Probably needs to be refactored. Make unit tests for it first before doing that.
         /// <inheritdoc />
         public Attempt<IEnumerable<SplitRange>> ParseRangesFromString(string ranges)
         {
@@ -87,54 +86,7 @@
 
                 foreach (string range in rangesSplit)
                 {
-                    SplitRange splitRange;
-
-                    //check if range is single number or has a start and end number.
-                    if (range.Contains(Hyphen))
-                    {
-                        string[] startAndEndNumbers = range.Split(Hyphen);
-
-                        Attempt<int> startPageNumberAttempt = ConvertStringToInt(startAndEndNumbers[0]);
-
-                        if (!startPageNumberAttempt.Success)
-                        {
-                            return new Attempt<IEnumerable<SplitRange>>()
-                            {
-                                ErrorMessage = startPageNumberAttempt.ErrorMessage
-                            };
-                        }
-
-                        Attempt<int> endPageNumberAttempt = ConvertStringToInt(startAndEndNumbers[1]);
-
-                        if (!endPageNumberAttempt.Success)
-                        {
-                            return new Attempt<IEnumerable<SplitRange>>()
-                            {
-                                ErrorMessage = endPageNumberAttempt.ErrorMessage
-                            };
-                        }
-
-                        splitRange = new SplitRange(startPageNumberAttempt.Data,
-                                                      endPageNumberAttempt.Data);
-                    }
-                    else
-                    {
-                        string rangeWithSingleNumber = range;
-                        Attempt<int> startPageNumberAttempt = ConvertStringToInt(rangeWithSingleNumber);
-
-                        if (!startPageNumberAttempt.Success)
-                        {
-                            return new Attempt<IEnumerable<SplitRange>>()
-                            {
-                                ErrorMessage = startPageNumberAttempt.ErrorMessage
-                            };
-                        }
-
-                        splitRange = new SplitRange(startPageNumberAttempt.Data,
-                                                    startPageNumberAttempt.Data);
-
-                    }
-
+                    SplitRange splitRange = CreateSplitRangeFromStringRange(range);
                     rangesList.Add(splitRange);
                 }
             }
@@ -142,7 +94,7 @@
             {
                 return new Attempt<IEnumerable<SplitRange>>()
                 {
-                    ErrorMessage = $"Failed to parse ranges from string - {ex.Message}"
+                    ErrorMessage = $"Failed to parse ranges from string: {ranges} - {ex.Message}"
                 };
             }
 
@@ -179,23 +131,56 @@
             };
         }
 
-        private Attempt<int> ConvertStringToInt(string stringNumber)
+        private int ConvertStringToInt(string stringNumber)
         {
             int number;
 
             if (!int.TryParse(stringNumber, out number))
             {
-                return new Attempt<int>()
-                {
-                    ErrorMessage = $"Failed to parse ranges - {stringNumber} couldn't be converted to an integer."
-                };
+                throw new Exception($"Failed to parse ranges - {stringNumber} couldn't be converted to an integer.");
             }
 
-            return new Attempt<int>()
+            return number;
+        }
+
+        private SplitRange CreateSplitRangeFromStringRange(string range)
+        {
+            SplitRange splitRange;
+
+            //check if range is single number or has a start and end number.
+            if (range.Contains(Hyphen))
             {
-                Success = true,
-                Data = number
-            };
+                splitRange = CreateSplitRangeFromFullRangeString(range);
+            }
+            else
+            {
+                splitRange = CreateSplitRangeFromSingleNumberString(range);
+            }
+
+            return splitRange;
+        }
+
+        private SplitRange CreateSplitRangeFromFullRangeString(string range)
+        {
+            string[] startAndEndNumbers = range.Split(Hyphen);
+            string startNumberString = startAndEndNumbers[0];
+            string endNumberString = startAndEndNumbers[1];
+
+            int startPageNumber = ConvertStringToInt(startNumberString);
+
+            int endPageNumber = ConvertStringToInt(endNumberString);
+
+            SplitRange splitRange = new SplitRange(startPageNumber, endPageNumber);
+
+            return splitRange;
+        }
+
+        private SplitRange CreateSplitRangeFromSingleNumberString(string singleNumberRange)
+        {
+            int startPageNumber = ConvertStringToInt(singleNumberRange);
+            SplitRange splitRange = new SplitRange(startPageNumber, startPageNumber);
+
+            return splitRange;
         }
 
         /// <summary>
