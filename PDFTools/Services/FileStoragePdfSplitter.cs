@@ -191,10 +191,9 @@
             }
             catch (Exception ex)
             {
-                //TODO: Add logging that includes pdf path here.
                 return new Attempt<PdfDocument>()
                 {
-                    ErrorMessage = $"Failed to open PDF - {ex.Message}"
+                    ErrorMessage = $"Failed to open PDF at location {inputPdfPath} - {ex.Message}"
                 };
             }
         }

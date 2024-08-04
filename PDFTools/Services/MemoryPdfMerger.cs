@@ -74,7 +74,7 @@
             {
                 return new Attempt<Stream>()
                 {
-                    ErrorMessage = $"Failed to merge PDFs - {ex.Message}" //TODO: Need to make this more DRY. Search for other place it is used.
+                    ErrorMessage = $"Failed to merge PDFs - {ex.Message}"
                 };
             }
         }

@@ -28,7 +28,6 @@
             return outputPdf;
         }
 
-        // TODO: create a service to do this logic. Maybe call it pdf meta data operations or something like that.
         private string CreateOutputPdfName(string inputPdfName, SplitRange range)
         {
             string outputPdfName = $"{inputPdfName}_Page_{range.StartPageNumber}";

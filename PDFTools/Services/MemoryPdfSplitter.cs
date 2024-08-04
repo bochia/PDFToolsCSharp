@@ -31,7 +31,7 @@
                 };
             }
 
-            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
+            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream); //TODO: how do we stop this from memory leaking?
             if (!pdfAttempt.Success || pdfAttempt.Data == null)
             {
                 return new Attempt<IEnumerable<Stream>>()
@@ -87,7 +87,7 @@
                 };
             }
 
-            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
+            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream); //TODO: how do we stop this from memory leaking?
             if (!pdfAttempt.Success || pdfAttempt.Data == null)
             {
                 return new Attempt<IEnumerable<Stream>>
@@ -180,10 +180,9 @@
             }
             catch (Exception ex)
             {
-                //TODO: Add logging that includes pdf path here.
                 return new Attempt<PdfDocument>()
                 {
-                    ErrorMessage = $"Failed to open PDF - {ex.Message}"
+                    ErrorMessage = $"Failed to open PDF via its input stream - {ex.Message}"
                 };
             }
         }
