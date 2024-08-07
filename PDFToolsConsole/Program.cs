@@ -4,6 +4,7 @@ using PDFTools.Services;
 using PDFTools.Services.Interfaces;
 using System.Diagnostics;
 
+//TODO: Create a readme file that has examples of how to use the code.
 //TODO: Create a PDF macro editor that can do stuff like SplitThenMerge etc..
 //TODO: Need to make sure all of my guard clauses are good.
 //TODO: Add unit tests using xUnit and NSubstitute.
