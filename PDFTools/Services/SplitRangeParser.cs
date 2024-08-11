@@ -41,6 +41,11 @@
                 ranges.Add(new SplitRange(startPageNumber, endPageNumber));
                 startPageNumber = endPageNumber + 1;
                 endPageNumber = startPageNumber + interval - 1;
+
+                if (endPageNumber > pdfPageCount)
+                {
+                    endPageNumber = pdfPageCount;
+                }
             }
 
             if (startPageNumber < pdfPageCount && endPageNumber > pdfPageCount)
