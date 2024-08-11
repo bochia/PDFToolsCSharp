@@ -36,7 +36,7 @@
 
             int startPageNumber = 1;
             int endPageNumber = interval;
-            while (endPageNumber <= pdfPageCount)
+            while (startPageNumber <= pdfPageCount)
             {
                 ranges.Add(new SplitRange(startPageNumber, endPageNumber));
                 startPageNumber = endPageNumber + 1;

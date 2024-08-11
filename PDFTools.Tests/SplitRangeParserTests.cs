@@ -31,19 +31,25 @@
             Assert.Equal(expectedErrorMessage, result.ErrorMessage);
         }
 
-        //[Fact]
-        //private void GenerateRangesFromInterval_HappyPath_ReturnsRanges()
-        //{
-        //    // Arrange
-        //    int interval = 5;
-        //    int pdfPageCount = 11;
+        [Fact]
+        private void GenerateRangesFromInterval_HappyPath_ReturnsRanges()
+        {
+            // Arrange
+            int interval = 5;
+            int pdfPageCount = 11;
 
-        //    // Act
-        //    Attempt<IEnumerable<SplitRange>> result = splitRangeParser.GenerateRangesFromInterval(interval, pdfPageCount);
+            // Act
+            Attempt<IEnumerable<SplitRange>> result = splitRangeParser.GenerateRangesFromInterval(interval, pdfPageCount);
 
-        //    // Assert
-        //    Assert.True(result.Success);
-        //    Assert.Equal(result.count)
-        //}
+            // Assert
+            Assert.True(result.Success);
+            List<SplitRange> ranges = result.Data.ToList();
+            Assert.Equal(3, ranges.Count());
+            Assert.Equal(1, ranges[0].StartPageNumber);
+            Assert.Equal(5, ranges[0].EndPageNumber);
+            Assert.Equal(6, ranges[1].StartPageNumber);
+            Assert.Equal(10, ranges[1].EndPageNumber);
+            Assert.Equal(11, ranges[2].StartPageNumber);
+        }
     }
 }
