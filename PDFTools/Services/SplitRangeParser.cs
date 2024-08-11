@@ -10,6 +10,8 @@
         private const char Comma = ',';
         private const char Hyphen = '-';
 
+
+        //TODO: Invalid inputs should throw errors. Atleast that's what the seniors said.
         /// <inheritdoc />
         public Attempt<IEnumerable<SplitRange>> GenerateRangesFromInterval(int interval, int pdfPageCount)
         {
