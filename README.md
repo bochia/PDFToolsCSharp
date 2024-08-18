@@ -6,9 +6,9 @@ The PDFTools.SplitMerge package provides classes that allow for splitting/mergin
 ```csharp
 ISplitRangeParser splitRangeParser = new SplitRangeParser();
 IStoragePdfSplitter pdfSplitter = new FileStoragePdfSplitter(splitRangeParser);
-Attempt<IEnumerable<string>> splitAttempt1 = pdfSplitter.SplitByRanges(inputPdfPath, outputFolderPath, "1,3-5,8-16");
+Attempt<IEnumerable<string>> splitAttempt = pdfSplitter.SplitByRanges(inputPdfPath, outputFolderPath, "1,3-5,8-16");
 
-if (!splitAttempt1.Success)
+if (!splitAttempt.Success)
 {
     Console.WriteLine(splitAttempt1.ErrorMessage);
 }
