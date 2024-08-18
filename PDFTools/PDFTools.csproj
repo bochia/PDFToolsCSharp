@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>PdfTools.SplitMerge</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Brandon Ochia</Authors>
     <Description>This is a package to help with splitting and/or merging PDFs. Includes classes that allow for splitting/merging for both in memory and also using local storage.</Description>
     <PackageLicenseUrl>https://licenses.nuget.org/MIT</PackageLicenseUrl>
