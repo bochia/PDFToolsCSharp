@@ -1,7 +1,7 @@
 # PDFTools.SplitMerge Nuget Package
 On this page you will find real code examples of how to use the PDFTools.SplitMerge nuget package.
 
-## Split By Ranges (Local Storage)
+## Split By Ranges (File Storage)
 ### Code
 ```csharp
 ISplitRangeParser splitRangeParser = new SplitRangeParser();
@@ -30,7 +30,7 @@ if (!splitAttempt.Success)
 }
 ```
 
-## Split By Interval (Local Storage)
+## Split By Interval (File Storage)
 ### Code
 ```csharp
 ISplitRangeParser splitRangeParser = new SplitRangeParser();
@@ -61,7 +61,7 @@ if (!splitAttempt.Success)
 }
 ```
 
-## Merge (Local Storage)
+## Merge (File Storage)
 ### Code
 ```csharp
 List<string> pdfPaths = new List<string>();
