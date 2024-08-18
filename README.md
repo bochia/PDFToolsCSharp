@@ -1,5 +1,5 @@
 # PDFTools.SplitMerge Nuget Package
-On this page you will find real code examples of how to use the PDFTools.SplitMerge nuget package.
+The PDFTools.SplitMerge package provides classes that allow for splitting/merging PDFs. The package flexible and provides classes for splitting and/or merging in memory or by using file storage. On this page you will find real code examples of how to use the classes provided in the nuget package.
 
 ## Split By Ranges (File Storage)
 ### Code
