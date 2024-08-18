@@ -1,5 +1,5 @@
 # PDFTools.SplitMerge Nuget Package
-The page is dedicated to showing some how the PDFTools.SplitMerge nuget package can be used. We'll go over some real code examples and outputs.
+On this page you will find real code examples of how to use the PDFTools.SplitMerge nuget package.
 
 ## Split By Ranges (Local Storage)
 ### Code
