@@ -64,9 +64,6 @@ if (!splitAttempt.Success)
 ## Merge (Local Storage)
 ### Code
 ```csharp
-const string BasePath = "put your base path here";
-string outputFolderPath = $@"{BasePath}\PDFFiles\OutputFiles";
-
 List<string> pdfPaths = new List<string>();
 
 IStoragePdfMerger pdfMerger = new FileStoragePdfMerger();
