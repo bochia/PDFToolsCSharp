@@ -16,16 +16,25 @@
         protected PdfDocument CreateNewPdfDocumentFromRange(PdfDocument inputPdf, SplitRange range, string inputPdfName)
         {
             PdfDocument outputPdf = new PdfDocument();
-            outputPdf.Version = inputPdf.Version;
-            outputPdf.Info.Title = CreateOutputPdfName(inputPdfName, range);
-            outputPdf.Info.CreationDate = DateTime.UtcNow;
 
-            for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
+            try
             {
-                outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
-            }
+                outputPdf.Version = inputPdf.Version;
+                outputPdf.Info.Title = CreateOutputPdfName(inputPdfName, range);
+                outputPdf.Info.CreationDate = DateTime.UtcNow;
 
-            return outputPdf;
+                for (int pageNumber = range.StartPageNumber; pageNumber <= range.EndPageNumber; pageNumber++)
+                {
+                    outputPdf.AddPage(inputPdf.Pages[pageNumber - 1]); //PDFSharp uses zero based indexing for pages.
+                }
+
+                return outputPdf;
+            }
+            catch (Exception ex)
+            {
+                outputPdf.Dispose();
+                throw new Exception($"Failed to create a new PDF Document from range - ${ex.Message}");
+            }
         }
 
         private string CreateOutputPdfName(string inputPdfName, SplitRange range)

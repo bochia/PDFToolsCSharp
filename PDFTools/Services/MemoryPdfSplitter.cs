@@ -31,33 +31,49 @@
                 };
             }
 
-            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream); //TODO: how do we stop this from memory leaking?
-            if (!pdfAttempt.Success || pdfAttempt.Data == null)
+            PdfDocument openedPdf = null;
+
+            try
             {
+                Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
+                if (!pdfAttempt.Success || pdfAttempt.Data == null)
+                {
+                    return new Attempt<IEnumerable<Stream>>()
+                    {
+                        ErrorMessage = pdfAttempt.ErrorMessage
+                    };
+                }
+
+                openedPdf = pdfAttempt.Data;
+
+                Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, openedPdf.PageCount);
+                if (!rangesAttempt.Success)
+                {
+                    return new Attempt<IEnumerable<Stream>>()
+                    {
+                        ErrorMessage = rangesAttempt.ErrorMessage
+                    };
+                }
+
+                if (rangesAttempt.Data == null)
+                {
+                    return new Attempt<IEnumerable<Stream>>()
+                    {
+                        ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
+                    };
+                }
+
+                return SplitByRanges(openedPdf, rangesAttempt.Data);
+            }
+            catch (Exception ex)
+            {
+                DisposeOf(openedPdf);
+
                 return new Attempt<IEnumerable<Stream>>()
                 {
-                    ErrorMessage = pdfAttempt.ErrorMessage
+                    ErrorMessage = $"Failed to split by interval - {ex.Message}"
                 };
             }
-
-            Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, pdfAttempt.Data.PageCount);
-            if (!rangesAttempt.Success)
-            {
-                return new Attempt<IEnumerable<Stream>>()
-                {
-                    ErrorMessage = rangesAttempt.ErrorMessage
-                };
-            }
-
-            if (rangesAttempt.Data == null)
-            {
-                return new Attempt<IEnumerable<Stream>>()
-                {
-                    ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
-                };
-            }
-
-            return SplitByRanges(pdfAttempt.Data, rangesAttempt.Data);
         }
 
         /// <inheritdoc />
@@ -87,26 +103,42 @@
                 };
             }
 
-            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream); //TODO: how do we stop this from memory leaking?
-            if (!pdfAttempt.Success || pdfAttempt.Data == null)
+            PdfDocument openedPdf = null;
+
+            try
             {
+                Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
+                if (!pdfAttempt.Success || pdfAttempt.Data == null)
+                {
+                    return new Attempt<IEnumerable<Stream>>
+                    {
+                        ErrorMessage = pdfAttempt.ErrorMessage
+                    };
+                }
+
+                openedPdf = pdfAttempt.Data;
+
+                Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
+
+                if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
+                {
+                    return new Attempt<IEnumerable<Stream>>
+                    {
+                        ErrorMessage = parseRangesAttempt.ErrorMessage
+                    };
+                }
+
+                return SplitByRanges(openedPdf, parseRangesAttempt.Data);
+            }
+            catch (Exception ex)
+            {
+                DisposeOf(openedPdf);
+
                 return new Attempt<IEnumerable<Stream>>
                 {
-                    ErrorMessage = pdfAttempt.ErrorMessage
+                    ErrorMessage = $"Failed to split the PDF by ranges - {ex.Message}"
                 };
             }
-
-            Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
-
-            if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
-            {
-                return new Attempt<IEnumerable<Stream>>
-                {
-                    ErrorMessage = parseRangesAttempt.ErrorMessage
-                };
-            }
-
-            return SplitByRanges(pdfAttempt.Data, parseRangesAttempt.Data);
         }
 
         private Attempt<IEnumerable<Stream>> SplitByRanges(PdfDocument inputPdf, IEnumerable<SplitRange> ranges)
@@ -127,6 +159,8 @@
                 };
             }
 
+            PdfDocument outputPdf = null;
+            MemoryStream outputPdfStream = null;
             List<Stream> outputPdfSteams = new List<Stream>();
 
             try
@@ -135,9 +169,9 @@
 
                 foreach (SplitRange range in ranges)
                 {
-                    PdfDocument outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName);
+                    outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName);
                 
-                    MemoryStream outputPdfStream = new MemoryStream();
+                    outputPdfStream = new MemoryStream();
                     outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
                     outputPdfSteams.Add(outputPdfStream);
                 }
@@ -150,6 +184,14 @@
             }
             catch (Exception ex)
             {
+                // make sure all disposable objects get disposed
+                DisposeOf(outputPdf);
+                DisposeOf(outputPdfStream);
+
+                foreach (MemoryStream stream in outputPdfSteams)
+                {
+                    DisposeOf(stream);
+                }
 
                 return new Attempt<IEnumerable<Stream>>
                 {
@@ -160,9 +202,11 @@
 
         private Attempt<PdfDocument> OpenPdf(Stream inputPdfStream)
         {
+            PdfDocument inputPdf = null;
+
             try
             {
-                PdfDocument inputPdf = PdfReader.Open(inputPdfStream, PdfDocumentOpenMode.Import);
+                inputPdf = PdfReader.Open(inputPdfStream, PdfDocumentOpenMode.Import);
 
                 if (inputPdf == null)
                 {
@@ -180,10 +224,20 @@
             }
             catch (Exception ex)
             {
+                DisposeOf(inputPdf);
+
                 return new Attempt<PdfDocument>()
                 {
                     ErrorMessage = $"Failed to open PDF via its input stream - {ex.Message}"
                 };
+            }
+        }
+
+        private void DisposeOf(IDisposable disposable)
+        {
+            if (disposable != null)
+            {
+                disposable.Dispose();
             }
         }
     }
