@@ -135,7 +135,6 @@
                 };
             }
 
-            PdfDocument outputPdf = null;
             MemoryStream outputPdfStream = null;
             List<Stream> outputPdfSteams = new List<Stream>();
 
@@ -145,11 +144,12 @@
 
                 foreach (SplitRange range in ranges)
                 {
-                    outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName);
-                
-                    outputPdfStream = new MemoryStream();
-                    outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
-                    outputPdfSteams.Add(outputPdfStream);
+                    using (PdfDocument outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName))
+                    {
+                        outputPdfStream = new MemoryStream();
+                        outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
+                        outputPdfSteams.Add(outputPdfStream);
+                    }
                 }
 
                 return new Attempt<IEnumerable<Stream>>()
@@ -161,7 +161,6 @@
             catch (Exception ex)
             {
                 // make sure all disposable objects get disposed
-                DisposeOf(outputPdf);
                 DisposeOf(outputPdfStream);
 
                 foreach (MemoryStream stream in outputPdfSteams)
