@@ -31,44 +31,32 @@
                 };
             }
 
-            PdfDocument openedPdf = null;
-
             try
             {
-                Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
-                if (!pdfAttempt.Success || pdfAttempt.Data == null)
+                using (PdfDocument openedPdf = PdfReader.Open(inputPdfStream, PdfDocumentOpenMode.Import))
                 {
-                    return new Attempt<IEnumerable<Stream>>()
+                    Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, openedPdf.PageCount);
+                    if (!rangesAttempt.Success)
                     {
-                        ErrorMessage = pdfAttempt.ErrorMessage
-                    };
-                }
+                        return new Attempt<IEnumerable<Stream>>()
+                        {
+                            ErrorMessage = rangesAttempt.ErrorMessage
+                        };
+                    }
 
-                openedPdf = pdfAttempt.Data;
-
-                Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, openedPdf.PageCount);
-                if (!rangesAttempt.Success)
-                {
-                    return new Attempt<IEnumerable<Stream>>()
+                    if (rangesAttempt.Data == null)
                     {
-                        ErrorMessage = rangesAttempt.ErrorMessage
-                    };
-                }
+                        return new Attempt<IEnumerable<Stream>>()
+                        {
+                            ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
+                        };
+                    }
 
-                if (rangesAttempt.Data == null)
-                {
-                    return new Attempt<IEnumerable<Stream>>()
-                    {
-                        ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
-                    };
+                    return SplitByRanges(openedPdf, rangesAttempt.Data);
                 }
-
-                return SplitByRanges(openedPdf, rangesAttempt.Data);
             }
             catch (Exception ex)
             {
-                DisposeOf(openedPdf);
-
                 return new Attempt<IEnumerable<Stream>>()
                 {
                     ErrorMessage = $"Failed to split by interval - {ex.Message}"
@@ -103,37 +91,25 @@
                 };
             }
 
-            PdfDocument openedPdf = null;
-
             try
             {
-                Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfStream);
-                if (!pdfAttempt.Success || pdfAttempt.Data == null)
+                using (PdfDocument openedPdf = PdfReader.Open(inputPdfStream, PdfDocumentOpenMode.Import))
                 {
-                    return new Attempt<IEnumerable<Stream>>
+                    Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
+
+                    if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
                     {
-                        ErrorMessage = pdfAttempt.ErrorMessage
-                    };
+                        return new Attempt<IEnumerable<Stream>>
+                        {
+                            ErrorMessage = parseRangesAttempt.ErrorMessage
+                        };
+                    }
+
+                    return SplitByRanges(openedPdf, parseRangesAttempt.Data);
                 }
-
-                openedPdf = pdfAttempt.Data;
-
-                Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
-
-                if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
-                {
-                    return new Attempt<IEnumerable<Stream>>
-                    {
-                        ErrorMessage = parseRangesAttempt.ErrorMessage
-                    };
-                }
-
-                return SplitByRanges(openedPdf, parseRangesAttempt.Data);
             }
             catch (Exception ex)
             {
-                DisposeOf(openedPdf);
-
                 return new Attempt<IEnumerable<Stream>>
                 {
                     ErrorMessage = $"Failed to split the PDF by ranges - {ex.Message}"
@@ -196,39 +172,6 @@
                 return new Attempt<IEnumerable<Stream>>
                 {
                     ErrorMessage = $"Failed to split PDFs - {ex.Message}"
-                };
-            }
-        }
-
-        private Attempt<PdfDocument> OpenPdf(Stream inputPdfStream)
-        {
-            PdfDocument inputPdf = null;
-
-            try
-            {
-                inputPdf = PdfReader.Open(inputPdfStream, PdfDocumentOpenMode.Import);
-
-                if (inputPdf == null)
-                {
-                    return new Attempt<PdfDocument>()
-                    {
-                        ErrorMessage = "Opened PDF was null."
-                    };
-                }
-
-                return new Attempt<PdfDocument>()
-                {
-                    Success = true,
-                    Data = inputPdf
-                };
-            }
-            catch (Exception ex)
-            {
-                DisposeOf(inputPdf);
-
-                return new Attempt<PdfDocument>()
-                {
-                    ErrorMessage = $"Failed to open PDF via its input stream - {ex.Message}"
                 };
             }
         }
