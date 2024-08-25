@@ -51,7 +51,7 @@
                             {
                                 return new Attempt<Stream>()
                                 {
-                                    ErrorMessage = $"Couldn't open PDF using input PDF stream"
+                                    ErrorMessage = $"Couldn't open PDF using input PDF stream."
                                 };
                             }
 
