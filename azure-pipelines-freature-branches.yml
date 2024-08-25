@@ -7,6 +7,10 @@ trigger:
   branches:
       include:
         - feature/*  # Triggers for any feature branch
+      exclude:
+      - master
+      - develop
+      - release/*
 
 pool:
   vmImage: ubuntu-latest
