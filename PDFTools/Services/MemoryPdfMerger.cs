@@ -34,6 +34,8 @@
                 }
             }
 
+            MemoryStream outputPdfStream = new MemoryStream();
+
             try
             {
                 using (PdfDocument outputPdf = new PdfDocument())
@@ -49,7 +51,7 @@
                             {
                                 return new Attempt<Stream>()
                                 {
-                                    ErrorMessage = $"Couldn't open PDF using input PDF stream"
+                                    ErrorMessage = $"Couldn't open PDF using input PDF stream."
                                 };
                             }
 
@@ -60,7 +62,6 @@
                         }
                     }
 
-                    MemoryStream outputPdfStream = new MemoryStream();
                     outputPdf.Save(outputPdfStream, false); // Leave the stream open - it's up to the caller to close it.
 
                     return new Attempt<Stream>()
@@ -72,6 +73,7 @@
             }
             catch (Exception ex)
             {
+                outputPdfStream.Dispose();
                 return new Attempt<Stream>()
                 {
                     ErrorMessage = $"Failed to merge PDFs - {ex.Message}"

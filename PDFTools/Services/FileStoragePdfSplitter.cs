@@ -30,33 +30,38 @@
                 };
             }
 
-            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfPath);
-            if (!pdfAttempt.Success || pdfAttempt.Data == null)
+            try
             {
+                using (PdfDocument openedPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import))
+                {
+                    Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, openedPdf.PageCount);
+                    if (!rangesAttempt.Success)
+                    {
+                        return new Attempt<IEnumerable<string>>()
+                        {
+                            ErrorMessage = rangesAttempt.ErrorMessage
+                        };
+                    }
+
+                    if (rangesAttempt.Data == null)
+                    {
+                        return new Attempt<IEnumerable<string>>()
+                        {
+                            ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
+                        };
+                    }
+
+                    return SplitByRanges(openedPdf, outputFolderPath, rangesAttempt.Data);
+                }
+            }
+            catch (Exception ex)
+            {
+
                 return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = pdfAttempt.ErrorMessage
+                    ErrorMessage = $"Failed to split PDF by interval - {ex.Message}"
                 };
             }
-
-            Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, pdfAttempt.Data.PageCount);
-            if (!rangesAttempt.Success)
-            {
-                return new Attempt<IEnumerable<string>>()
-                {
-                    ErrorMessage = rangesAttempt.ErrorMessage
-                };
-            }
-
-            if (rangesAttempt.Data == null)
-            {
-                return new Attempt<IEnumerable<string>>()
-                {
-                    ErrorMessage = $"{nameof(rangesAttempt)}.Data cannot be null."
-                };
-            }
-
-            return SplitByRanges(pdfAttempt.Data, outputFolderPath, rangesAttempt.Data);
         }
 
         /// <inheritdoc />
@@ -94,27 +99,31 @@
                 };
             }
 
-            Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfPath);
-            if (!pdfAttempt.Success || pdfAttempt.Data == null)
+            try
             {
+                using (PdfDocument openedPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import))
+                {
+                    Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
+
+                    if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
+                    {
+                        return new Attempt<IEnumerable<string>>()
+                        {
+                            ErrorMessage = parseRangesAttempt.ErrorMessage
+                        };
+                    }
+
+                    return SplitByRanges(openedPdf, outputFolderPath, parseRangesAttempt.Data);
+                }
+            }
+            catch (Exception ex)
+            {
+
                 return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = pdfAttempt.ErrorMessage
+                    ErrorMessage = $"Failed to split PDF by ranges - {ex.Message}"
                 };
             }
-
-            Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
-
-            if (!parseRangesAttempt.Success || parseRangesAttempt.Data == null)
-            {
-                return new Attempt<IEnumerable<string>>()
-                {
-                    ErrorMessage = parseRangesAttempt.ErrorMessage
-                };
-            }
-
-            return SplitByRanges(pdfAttempt.Data, outputFolderPath, parseRangesAttempt.Data);
-
         }
 
         private Attempt<IEnumerable<string>> SplitByRanges(PdfDocument inputPdf, string outputFolderPath, IEnumerable<SplitRange> ranges)
@@ -143,57 +152,27 @@
 
                 foreach (SplitRange range in ranges)
                 {
-                    PdfDocument outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName);
+                    using (PdfDocument outputPdf = CreateNewPdfDocumentFromRange(inputPdf, range, inputPdfName))
+                    {
 
-                    string outputPdfPath = $"{outputFolderPath}{outputPdf.Info.Title}{PdfFileExtension}";
-                    outputPdf.Save(outputPdfPath);
+                        string outputPdfPath = $"{outputFolderPath}{outputPdf.Info.Title}{PdfFileExtension}";
+                        outputPdf.Save(outputPdfPath);
 
-                    outputPdfPaths.Add(outputPdfPath);
+                        outputPdfPaths.Add(outputPdfPath);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
 
                 return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = $"Failed to split PDF - {ex.Message}"
-                };
-            }
-
-
-            return new Attempt<IEnumerable<string>>()
-            {
-                Success = true,
-                Data = outputPdfPaths
-            };
-        }
-
-        private Attempt<PdfDocument> OpenPdf(string inputPdfPath)
-        {
-
-            try
-            {
-                PdfDocument inputPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import); //TODO: how do we stop this from memory leaking?
-
-                if (inputPdf == null)
-                {
-                    return new Attempt<PdfDocument>()
-                    {
-                        ErrorMessage = "Opened PDF was null."
-                    };
-                }
-
-                return new Attempt<PdfDocument>()
-                {
                     Success = true,
-                    Data = inputPdf
+                    Data = outputPdfPaths
                 };
             }
             catch (Exception ex)
             {
-                return new Attempt<PdfDocument>()
+                return new Attempt<IEnumerable<string>>()
                 {
-                    ErrorMessage = $"Failed to open PDF at location {inputPdfPath} - {ex.Message}"
+                    ErrorMessage = $"Failed to split PDF by ranges - {ex.Message}"
                 };
             }
         }
