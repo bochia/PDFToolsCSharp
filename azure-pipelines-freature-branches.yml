@@ -10,7 +10,6 @@ trigger:
       exclude:
       - master
       - develop
-      - release/*
 
 pool:
   vmImage: ubuntu-latest
