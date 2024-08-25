@@ -32,18 +32,9 @@
 
             try
             {
-                Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfPath);
-                if (!pdfAttempt.Success || pdfAttempt.Data == null)
+                using (PdfDocument openedPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import))
                 {
-                    return new Attempt<IEnumerable<string>>()
-                    {
-                        ErrorMessage = pdfAttempt.ErrorMessage
-                    };
-                }
-
-                using (PdfDocument openedPdf = pdfAttempt.Data)
-                {
-                    Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, pdfAttempt.Data.PageCount);
+                    Attempt<IEnumerable<SplitRange>> rangesAttempt = splitRangeParser.GenerateRangesFromInterval(interval, openedPdf.PageCount);
                     if (!rangesAttempt.Success)
                     {
                         return new Attempt<IEnumerable<string>>()
@@ -110,16 +101,7 @@
 
             try
             {
-                Attempt<PdfDocument> pdfAttempt = OpenPdf(inputPdfPath);
-                if (!pdfAttempt.Success || pdfAttempt.Data == null)
-                {
-                    return new Attempt<IEnumerable<string>>()
-                    {
-                        ErrorMessage = pdfAttempt.ErrorMessage
-                    };
-                }
-
-                using (PdfDocument openedPdf = pdfAttempt.Data)
+                using (PdfDocument openedPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import))
                 {
                     Attempt<IEnumerable<SplitRange>> parseRangesAttempt = splitRangeParser.ParseRangesFromString(ranges);
 
@@ -191,42 +173,6 @@
                 return new Attempt<IEnumerable<string>>()
                 {
                     ErrorMessage = $"Failed to split PDF by ranges - {ex.Message}"
-                };
-            }
-        }
-
-        private Attempt<PdfDocument> OpenPdf(string inputPdfPath)
-        {
-            PdfDocument inputPdf = null;
-
-            try
-            {
-                inputPdf = PdfReader.Open(inputPdfPath, PdfDocumentOpenMode.Import);
-
-                if (inputPdf == null)
-                {
-                    return new Attempt<PdfDocument>()
-                    {
-                        ErrorMessage = "Opened PDF was null."
-                    };
-                }
-
-                return new Attempt<PdfDocument>()
-                {
-                    Success = true,
-                    Data = inputPdf
-                };
-            }
-            catch (Exception ex)
-            {
-                if (inputPdf != null)
-                {
-                    inputPdf.Dispose();
-                }
-
-                return new Attempt<PdfDocument>()
-                {
-                    ErrorMessage = $"Failed to open PDF at location {inputPdfPath} - {ex.Message}"
                 };
             }
         }
